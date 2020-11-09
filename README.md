@@ -28,4 +28,6 @@ _Seth M. Rudman, Subhash Rajpurohit, Sharon Greenblum, Ozan Kiratli, Martin M. T
   + LOO GLM analysis shows direction of allele frequency shift in 10th left-out cage often flips between time segments
   + Few regions are enriched for parallelism over multiple time segments
   + SNPs in the regions that do span multiple time segments often switch direction
-  + (PCA plots suggest genome-wide reversion towards baseline (spring-adapted) state at the end of the sampling season?)
+  + (PCA plots suggest genome-wide reversion towards baseline (spring-adapted) state at the end of the sampling season?). 
+  
+Author: Sharon Greenblum, 2018-2019 Stanford University
