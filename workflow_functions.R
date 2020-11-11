@@ -37,8 +37,8 @@ library("tidyr")
     FDR=get_glm_FDR(df.glm,comparisons)
     
     pSig= (0 + (FDR<=fdrThreshs[1] & abs(afShifts)>=esThreshs[1])) + 
-      (0 + (FDR<=fdrThreshs[2] & abs(afShifts)>=esThresh[2])) + 
-      (0 + (FDR<=fdrThreshs[3] & abs(afShifts)>=esThresh[3]))
+      (0 + (FDR<=fdrThreshs[2] & abs(afShifts)>=esThreshs[2])) + 
+      (0 + (FDR<=fdrThreshs[3] & abs(afShifts)>=esThreshs[3]))
     
     df.sig=get_sig_sites(df.glm,comparisons,pSig,shuffle=FALSE)
     
