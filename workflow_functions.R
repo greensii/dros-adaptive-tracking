@@ -11,6 +11,11 @@
 #  calc_Rsq_for_snp_pairs
 #  merge_linked_clusters
 
+library(data.table)
+library(tidyr)
+
+
+
   
  ####################### 
  RunFullWorkflow=function(afFile,glmFile,snpFile,comparisons,cageSet,
