@@ -11,10 +11,6 @@
 #  calc_Rsq_for_snp_pairs
 #  merge_linked_clusters
 
-library("data.table")
-library("tidyr")
-
-
 
   
  ####################### 
@@ -23,16 +19,16 @@ library("tidyr")
                           maxSNPPairDist=3000000,linkedClusterThresh=0.03,ncores=15){
 ##################
    ## load GLM data
-   cat("loading GLM results..\n")
+   cat("loading GLM results..\n");flush.console();Sys.sleep(1)
     load(glmFile)
     sites=df.glm %>% dplyr::select(chrom,pos)
     
 ## get af shifts in training cages and in test cage at each time segment
-    cat("loading af data..\n")
+    cat("loading af data..\n");flush.console();Sys.sleep(1)
     load(afFile)
     
     ## find parallel sites at each timeseg
-    cat("finding parallel sites..\n")
+    cat("finding parallel sites..\n");flush.console();Sys.sleep(1)
     afShifts=get_af_shifts(afmat,samps,cageSet,comparisons)
     FDR=get_glm_FDR(df.glm,comparisons)
     
@@ -43,26 +39,26 @@ library("tidyr")
     df.sig=get_sig_sites(df.glm,comparisons,pSig,shuffle=FALSE)
     
     ### score windows
-    cat("scoring windows..\n")
+    cat("scoring windows..\n");flush.console();Sys.sleep(1)
     df.wins=score_wins(df.sig ,sites,winSize,winShift) 
-    df.sig.shuff=df.sig %>% group_by(timeseg) %>% mutate(ix=sample(1:nrow(sites),n())) %>%
+    df.sig.shuff=df.sig %>% group_by(comparison) %>% mutate(ix=sample(1:nrow(sites),n())) %>%
       ungroup() %>% mutate(chrom=sites$chrom[ix],pos=sites$pos[ix])
     df.wins.shuff=score_wins(df.sig.shuff,sigLabels,sites,winSize,winShift) 
     df.winfdr=get_win_fdr(df.wins,df.wins.shuff)
     
     ### cluster windows and merge by linkage
-    cat("finding initial clusters..\n")
+    cat("finding initial clusters..\n");flush.console();Sys.sleep(1)
     df.clust=cluster_wins(df.wins,df.winfdr,maxBreak=maxClusterBreak) %>% mutate(startPos=sites$pos[startSNP],endPos=sites$pos[endSNP]) 
     
-    cat("merging linked clusters..\n")
+    cat("merging linked clusters..\n");flush.console();Sys.sleep(1)
     df.clust = df.sig %>% filter(sigLevel>1) %>% associate_snps_to_clusters(df.clust) %>% 
       find_snp_pairs(maxDist=maxSNPPairDist) %>% filter(pairType=="inter") %>%
       calc_Rsq_for_snp_pairs(ncores=ncores) %>% dplyr::select(-snp1.cl,-snp2.cl) %>%
       merge_linked_clusters(df.clust,df.sig,Rsq.thresh = linkedClusterThresh) 
     #save(df.clust,file=paste0("Rdata/GLMLOO.drop",dropCage,"_clusters.Rdata"))
-    params=list(glmFile,comparisons,timesegs,cageSet,fdrThreshs,esThreshs,sigLabels,winSize=500,winShift=100,maxClusterBreak=100,maxSNPPairDist=3000000,linkedClusterThresh=0.03,ncores=15)
-    cat("finished.\n")
-    cat(nrow(df.sig),"parallel sites in",nrow(df.clust),"clusters\n")
+    params=list(glmFile,comparisons,cageSet,fdrThreshs,esThreshs,sigLabels,winSize=500,winShift=100,maxClusterBreak=100,maxSNPPairDist=3000000,linkedClusterThresh=0.03,ncores=15)
+    cat("finished.\n");flush.console();Sys.sleep(1)
+    cat(nrow(df.sig),"parallel sites in",nrow(df.clust),"clusters\n");flush.console();Sys.sleep(1)
     results=list("sigSites"=df.sig,"wins"=df.wins,"clusters"=df.clust,"params"=params)
     return(results)
  }
@@ -116,7 +112,9 @@ library("tidyr")
  score_wins = function(df.sig,sites,winSize,winShift){
 ########################
     nSites=nrow(sites)
-    comparisons=levels(df.sig$comparisons)
+    chroms=unique(df.sig$chrom)
+    comparisons=levels(df.sig$comparison)
+    
     ## get average sigfreq per base, with sig weighted by sig level
     sigCounts=df.sig %>% group_by(sigLevel) %>% summarise(count=n())
     #print(sigCounts); flush.console()
@@ -251,7 +249,7 @@ library("tidyr")
           df.pairs <- df.pairs %>% mutate(snp1.freq=df.snps$freq[sigIX$Var1],snp2.freq=df.snps$freq[sigIX$Var2])
         }
         df.pairs <- df.pairs %>% mutate(snpDist=abs(snp1.pos-snp2.pos)) %>%
-          filter(snpDist<maxDist) %>% mutate(chrom=chrom,timeseg=ts) 
+          filter(snpDist<maxDist) %>% mutate(chrom=chrom,comparison=cc) 
         return(df.pairs)
         
       }))
