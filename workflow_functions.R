@@ -11,8 +11,8 @@
 #  calc_Rsq_for_snp_pairs
 #  merge_linked_clusters
 
-library(data.table)
-library(tidyr)
+library("data.table")
+library("tidyr")
 
 
 
@@ -23,15 +23,18 @@ library(tidyr)
                           maxSNPPairDist=3000000,linkedClusterThresh=0.03,ncores=15){
 ##################
    ## load GLM data
+   cat("loading GLM results..\n")
     load(glmFile)
     sites=df.glm %>% dplyr::select(chrom,pos)
     
-    ## find parallel sites at each timeseg
-    FDR=get_glm_FDR(df.glm,comparisons)
-    
-    ## get af shifts in training cages and in test cage at each time segment
+## get af shifts in training cages and in test cage at each time segment
+    cat("loading af data..\n")
     load(afFile)
+    
+    ## find parallel sites at each timeseg
+    cat("finding parallel sites..\n")
     afShifts=get_af_shifts(afmat,samps,cageSet,comparisons)
+    FDR=get_glm_FDR(df.glm,comparisons)
     
     pSig= (0 + (FDR<=fdrThreshs[1] & abs(afShifts)>=esThreshs[1])) + 
       (0 + (FDR<=fdrThreshs[2] & abs(afShifts)>=esThresh[2])) + 
@@ -40,6 +43,7 @@ library(tidyr)
     df.sig=get_sig_sites(df.glm,comparisons,pSig,shuffle=FALSE)
     
     ### score windows
+    cat("scoring windows..\n")
     df.wins=score_wins(df.sig ,sites,winSize,winShift) 
     df.sig.shuff=df.sig %>% group_by(timeseg) %>% mutate(ix=sample(1:nrow(sites),n())) %>%
       ungroup() %>% mutate(chrom=sites$chrom[ix],pos=sites$pos[ix])
@@ -47,13 +51,18 @@ library(tidyr)
     df.winfdr=get_win_fdr(df.wins,df.wins.shuff)
     
     ### cluster windows and merge by linkage
+    cat("finding initial clusters..\n")
     df.clust=cluster_wins(df.wins,df.winfdr,maxBreak=maxClusterBreak) %>% mutate(startPos=sites$pos[startSNP],endPos=sites$pos[endSNP]) 
+    
+    cat("merging linked clusters..\n")
     df.clust = df.sig %>% filter(sigLevel>1) %>% associate_snps_to_clusters(df.clust) %>% 
       find_snp_pairs(maxDist=maxSNPPairDist) %>% filter(pairType=="inter") %>%
       calc_Rsq_for_snp_pairs(ncores=ncores) %>% dplyr::select(-snp1.cl,-snp2.cl) %>%
       merge_linked_clusters(df.clust,df.sig,Rsq.thresh = linkedClusterThresh) 
     #save(df.clust,file=paste0("Rdata/GLMLOO.drop",dropCage,"_clusters.Rdata"))
     params=list(glmFile,comparisons,timesegs,cageSet,fdrThreshs,esThreshs,sigLabels,winSize=500,winShift=100,maxClusterBreak=100,maxSNPPairDist=3000000,linkedClusterThresh=0.03,ncores=15)
+    cat("finished.\n")
+    cat(nrow(df.sig),"parallel sites in",nrow(df.clust),"clusters\n")
     results=list("sigSites"=df.sig,"wins"=df.wins,"clusters"=df.clust,"params"=params)
     return(results)
  }
