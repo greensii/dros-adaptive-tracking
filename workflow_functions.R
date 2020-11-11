@@ -337,19 +337,3 @@ library("tidyr")
  #################
   
   
-  
-#################
-AssignSNPsFreqBins=function(sites,snpFile,nFreqBins=10){
-#################
-  ## sites is a dataframe listing the position of all SNPs, containing (at minimum) two columns: chrom,pos
-  ## snpFile is the name of a text file containing the call (-1/0/0.5/1 corresponding to missing/ref/het/alt calls) in the founder set
-  
-  freqBins=do.call(rbind,lapply(chroms,function(chrom){
-    snps=fread(gsub("CHROM",chrom,snpFile));snps[snps<0]=NA
-    fb=rowSums(snps[,-1],na.rm=T)/rowSums(!is.na(snps[,-1]))
-    fb[fb>.5]=1-fb[fb>.5]
-    fb=cut(fb,seq(0,.5,by=.5/nfreqBins),labels=FALSE)*(.5/nfreqBins)
-    return(data.frame(chrom=chrom,pos=snps[[1]],freq=fb))
-  })) %>% merge(sites %>% dplyr::select(chrom,pos)) %>% arrange(chrom,pos) %>% mutate(freq=factor(freq))
-}
-############
