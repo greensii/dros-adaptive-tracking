@@ -1,17 +1,16 @@
 
-workflow steps:
-  get_glm_pvals
-  get_af_shifts
-  get_sig_sites
-  score_wins
-  get_win_fdr
-  cluster_wins
-  associate_snps_to_clusters
-  find_snp_pairs
-  calc_Rsq_for_snp_pairs
-  merge_linked_clusters
+## workflow steps:
+#  get_glm_pvals
+#  get_af_shifts
+#  get_sig_sites
+#  score_wins
+#  get_win_fdr
+#  cluster_wins
+#  associate_snps_to_clusters
+#  find_snp_pairs
+#  calc_Rsq_for_snp_pairs
+#  merge_linked_clusters
 
-  snpFile="/mnt/cages/ref_data//seasonal_inbred/inbredv2/subset_orch14/inbredv2_withHets.subset_orch14.CHROM.snpTable.numeric"
   
  ####################### 
  RunFullWorkflow=function(afFile,glmFile,snpFile,comparisons,cageSet,
@@ -50,7 +49,7 @@ workflow steps:
       merge_linked_clusters(df.clust,df.sig,Rsq.thresh = linkedClusterThresh) 
     #save(df.clust,file=paste0("Rdata/GLMLOO.drop",dropCage,"_clusters.Rdata"))
     params=list(glmFile,comparisons,timesegs,cageSet,fdrThreshs,esThreshs,sigLabels,winSize=500,winShift=100,maxClusterBreak=100,maxSNPPairDist=3000000,linkedClusterThresh=0.03,ncores=15)
-    results=list("sigSites"=df.sig,"wins"=df.wins,"clusters"=df.clust,"winfdr"=df.winfdr)
+    results=list("sigSites"=df.sig,"wins"=df.wins,"clusters"=df.clust,"params"=params)
     return(results)
  }
  
