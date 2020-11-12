@@ -178,7 +178,7 @@
     ##filter for windows with a score above sigRate
     df.wins=df.wins %>%  arrange(chrom,comparison,winstartSNP,winSize) 
     chroms=unique(df.wins$chrom)
-    comparisons=levels(df.wins$comparisons)
+    comparisons=levels(df.wins$comparison)
     cc_pairs=expand.grid(chroms,comparisons)
     
     ## for each chrom/comparison, go through windows one by one - 
