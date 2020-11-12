@@ -220,7 +220,7 @@
       
       
       
-    },as.character(ct_pairs[,1]),as.character(ct_pairs[,2]),SIMPLIFY=FALSE)) %>%
+    },as.character(cc_pairs[,1]),as.character(cc_pairs[,2]),SIMPLIFY=FALSE)) %>%
       mutate(comparison=factor(comparison,comparisons))
   }
  ############
