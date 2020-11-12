@@ -53,11 +53,11 @@
     cat("merging linked clusters..\n");flush.console();Sys.sleep(1)
     df.clust = df.sig %>% filter(sigLevel>1) %>% associate_snps_to_clusters(df.clust) %>% 
       find_snp_pairs(maxDist=maxSNPPairDist) %>% filter(pairType=="inter") %>%
-      calc_Rsq_for_snp_pairs(ncores=ncores) %>% dplyr::select(-snp1.cl,-snp2.cl) %>%
+      calc_Rsq_for_snp_pairs(ncores=ncores,snpFile) %>% dplyr::select(-snp1.cl,-snp2.cl) %>%
       merge_linked_clusters(df.clust,df.sig,Rsq.thresh = linkedClusterThresh) 
     #save(df.clust,file=paste0("Rdata/GLMLOO.drop",dropCage,"_clusters.Rdata"))
     params=list(glmFile,comparisons,cageSet,fdrThreshs,esThreshs,
-                winSize,winShift,maxClusterBreak,maxSNPPairDist,linkedClusterThres,ncores)
+                winSize,winShift,maxClusterBreak,maxSNPPairDist,linkedClusterThresh,ncores)
     cat("finished.\n");flush.console();Sys.sleep(1)
     cat(nrow(df.sig),"parallel sites in",nrow(df.clust),"clusters\n");flush.console();Sys.sleep(1)
     results=list("sigSites"=df.sig,"wins"=df.wins,"clusters"=df.clust,"params"=params)
@@ -229,7 +229,7 @@
   associate_snps_to_clusters = function(df.snps,df.clust){
     do.call(rbind,lapply(1:nrow(df.clust),function(cl){
       df.snps %>% merge(df.clust[cl,] %>% dplyr::select(cl,comparison,chrom,startPos,endPos),by=c("comparison","chrom")) %>% 
-        filter(pos>=C$startPos,pos<=C$endPos) 
+        filter(pos>=startPos,pos<=endPos) 
     })) 
   }
  #############
@@ -301,7 +301,7 @@
           }}
       }
       df.clust <- df.clust %>% group_by(clnew) %>%
-        summarise(chrom=unique(chrom),comparison=unique(comparisons), nWins=sum(nWins),
+        summarise(chrom=unique(chrom),comparison=unique(comparison), nWins=sum(nWins),
                   startSNP=min(startSNP),endSNP=max(endSNP),
                   startPos=min(startPos),endPos=max(endPos),
                   winscore.mean=mean(winscore.mean),winscore.max=max(winscore.max),
