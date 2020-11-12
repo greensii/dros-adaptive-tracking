@@ -43,7 +43,7 @@
     df.wins=score_wins(df.sig ,sites,winSize,winShift) 
     df.sig.shuff=df.sig %>% group_by(comparison) %>% mutate(ix=sample(1:nrow(sites),n())) %>%
       ungroup() %>% mutate(chrom=sites$chrom[ix],pos=sites$pos[ix])
-    df.wins.shuff=score_wins(df.sig.shuff,sigLabels,sites,winSize,winShift) 
+    df.wins.shuff=score_wins(df.sig.shuff,sites,winSize,winShift) 
     df.winfdr=get_win_fdr(df.wins,df.wins.shuff)
     
     ### cluster windows and merge by linkage
@@ -56,7 +56,8 @@
       calc_Rsq_for_snp_pairs(ncores=ncores) %>% dplyr::select(-snp1.cl,-snp2.cl) %>%
       merge_linked_clusters(df.clust,df.sig,Rsq.thresh = linkedClusterThresh) 
     #save(df.clust,file=paste0("Rdata/GLMLOO.drop",dropCage,"_clusters.Rdata"))
-    params=list(glmFile,comparisons,cageSet,fdrThreshs,esThreshs,sigLabels,winSize=500,winShift=100,maxClusterBreak=100,maxSNPPairDist=3000000,linkedClusterThresh=0.03,ncores=15)
+    params=list(glmFile,comparisons,cageSet,fdrThreshs,esThreshs,
+                winSize,winShift,maxClusterBreak,maxSNPPairDist,linkedClusterThres,ncores)
     cat("finished.\n");flush.console();Sys.sleep(1)
     cat(nrow(df.sig),"parallel sites in",nrow(df.clust),"clusters\n");flush.console();Sys.sleep(1)
     results=list("sigSites"=df.sig,"wins"=df.wins,"clusters"=df.clust,"params"=params)
