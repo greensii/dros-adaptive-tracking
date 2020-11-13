@@ -65,19 +65,6 @@ plot_MDS=function(df.fst,samps,treatments,tpts,drawArrows=FALSE,mytitle){
   return(ggMDS)
 }
 
-plot_sites_manhattan=function(chrom,pos,score,group=NULL,ylab="score",mytitle="",pointSize=.7,pointShape=16,pointAlpha=.7){
-  df=data.frame(chrom,pos,score);
-  if(!is.null(group)){df$group=group}
-  gg<-ggplot(df,aes(x=pos/1000000,y=score)) + facet_wrap(vars(chrom),scales = "free_x",nrow=1) + 
-    theme_minimal() + labs(y=ylab,x="position (Mb)") + ggtitle(mytitle)
-  if(!is.null(group)){
-    gg<- gg + geom_point(aes(color=group),size=pointSize,shape=pointShape,alpha=pointAlpha)
-  } else{
-    gg<-gg + geom_point(size=pointSize,shape=pointShape,pointAlpha=.7)
-  }
-  gg
-}
-
 make_window_GLM_plot=function(df,scoreCol,colorCol,myalpha=.7,myshape=1){
   ### plots scores for window-based enrichment as a point in the center of the window
   df$score=df[[scoreCol]]
@@ -87,4 +74,76 @@ make_window_GLM_plot=function(df,scoreCol,colorCol,myalpha=.7,myshape=1){
     theme_minimal() + facet_wrap(~chrom,nrow = 1,scales="free_x") + 
     labs(x="genomic window (Mb)",y=expression("-log"[10] * "(p"["enrichment"] *")"))
   gg
+}
+
+###################
+## main functions
+##################
+make_manhattan=function(df.sig,df.clust=NULL,comparisonLabels=NULL,sigLevelLabels=NULL,sigColors=NULL,
+                        show_inversions=TRUE,show_cluster_bars=FALSE,show_cluster_lines=FALSE,show_cluster_points=TRUE,show_cluster_nums=FALSE,
+                        cluster_line_color="gray",ylims=c(-3,11)){
+  ########################
+  library(ggrepel)
+  df.sig <- df.sig %>% mutate(sigLabel=factor(sigLevelLabels[sigLevel],sigLevelLabels),compLabel=factor(comparisonLabels[comparison],comparisonLabels))
+  df.clust <-df.clust %>% group_by(comparison,chrom) %>% mutate(ct=n()) %>% mutate(clnum=rank(startPos)) %>% ungroup() %>%
+    mutate(clfill=factor(clnum%%2)) %>% gather(key=posType,val=pos,startPos,endPos,bestSNP.pos) %>% 
+    mutate(compLabel=factor(comparisonLabels[comparison],comparisonLabels)) 
+  
+  ggbase <- df.sig %>% ggplot(aes(x=pos/1000000))+ theme_minimal() 
+  
+  
+  gg<- ggbase + lims(y=ylims)  +
+    facet_grid(compLabel ~ chrom,scales="free_x", switch="y") + 
+    theme(legend.position = "top",strip.text = element_text(size=16),strip.text.y = element_text(size=12)) +
+    labs(x="Position (Mb)",y="-log10(parallelism p-value)")  + theme(strip.text.y = element_text(size=10))
+  
+  
+  if(show_cluster_bars){
+    gg<-gg+geom_ribbon(data =  df.clust, aes(group=cl,fill=clfill),ymin=0,ymax=Inf,na.rm=TRUE,alpha=.5) + 
+      # scale_fill_gradientn(colours=brewer.pal(2,"Spectral"))
+      scale_fill_viridis_d(option="cvidis",begin=.4,end = .7)  +
+      guides(fill=FALSE) 
+  }
+  
+  if(show_cluster_nums){
+    gg<-gg+geom_text_repel(data = df.clust %>% filter(posType=="bestSNP.pos") ,
+                           aes(y=0,label=clnum),size=3,alpha=1) 
+  }
+  
+  if(show_cluster_lines){
+    gg<-gg+
+      geom_ribbon(data = df.clust ,
+                  aes(fill=af0,group=cl),ymin=10,ymax=11,alpha=.49) 
+    
+  }
+  
+  if(show_cluster_points){
+    gg<-gg+
+      geom_point(data = df.clust %>% filter(posType=="bestSNP.pos"),
+                 shape=19,y=0,color="darkslategray",size=.4) 
+    
+    
+  }
+  
+  gg <- gg + suppressWarnings(geom_point(aes(y=-log10(p.div),color=sigLabel),alpha=.8,size=1)) +
+    guides(color = guide_legend(override.aes = list(alpha = 1,size=3))) +
+    scale_color_manual(values=sigColors) + labs(color="")
+  
+  if(show_inversions){
+    inv.breaks=inv.breaks %>% group_by(chrom) %>% mutate(rr=rank(start)) %>% ungroup() compLabel=factor(comparisonLabels[length(comparisonLabels)],comparisonLabels)) 
+inv.lines= inv.breaks %>% ungroup() %>% gather(key=posType,val=pos,start,stop)
+inv.labs=inv.breaks%>%group_by(chrom) %>% mutate(rr=rank(start),timeseg=ts_factor(timeseg.last)) %>% ungroup() %>% gather(key=winSide,val=pos,start,stop)%>%group_by(chrom,rr,name,timeseg)%>% summarise(pos=mean(pos))%>%ungroup()
+
+gginv<- ggbase + suppressWarnings(geom_point(data=df.sig %>% group_by(chrom) %>% filter(pos==min(pos) | pos==max(pos)),
+                                             aes(y=0),color="transparent")) +
+  geom_line(data=inv.lines,aes(group=name,y=-rr),alpha=1,color="black") + 
+  geom_text_repel(data=inv.labs,aes(label=name,y=-rr),size=4,alpha=1,point.padding=.5,min.segment.length = 0,nudge_y=-1.5,nudge_x=-.25) +
+  facet_grid( ~ chrom,scales="free_x") + lims(y=c(-5,0)) +
+  labs(x="",y="") + theme(panel.grid = element_blank(),axis.line=element_blank(),axis.ticks = element_blank(),axis.text=element_blank(),strip.text = element_blank(),
+                          plot.margin=margin(t = 0, r = .5, b = .5, l = .5, unit = "pt"))
+
+gg<-list(gg + theme(plot.margin=margin(t = .5, r = .5, b = 0, l = .5, unit = "pt")),gginv)
+  }
+  
+  return(gg)
 }

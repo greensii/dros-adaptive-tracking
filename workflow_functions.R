@@ -26,17 +26,14 @@
 ## get af shifts in training cages and in test cage at each time segment
     cat("loading af data..\n");flush.console();Sys.sleep(1)
     load(afFile)
-    
-    ## find parallel sites at each timeseg
-    cat("finding parallel sites..\n");flush.console();Sys.sleep(1)
     afShifts=get_af_shifts(afmat,samps,cageSet,comparisons)
+    
+    ## get FDR-corrected pvalues
+    cat("finding parallel sites..\n");flush.console();Sys.sleep(1)
     FDR=get_glm_FDR(df.glm,comparisons)
     
-    pSig= (0 + (FDR<=fdrThreshs[1] & abs(afShifts)>=esThreshs[1])) + 
-      (0 + (FDR<=fdrThreshs[2] & abs(afShifts)>=esThreshs[2])) + 
-      (0 + (FDR<=fdrThreshs[3] & abs(afShifts)>=esThreshs[3]))
-    
-    df.sig=get_sig_sites(df.glm,comparisons,pSig,shuffle=FALSE)
+    ## classify sites
+    df.sig=get_sig_sites(df.glm,comparisons,FDR,afShifts,fdrThreshs,esThreshs)
     
     ### score windows
     cat("scoring windows..\n");flush.console();Sys.sleep(1)
@@ -95,15 +92,19 @@
  ################
  
  #############
- get_sig_sites=function(df.glm,comparisons,pSig,shuffle=FALSE){
+ get_sig_sites=function(df.glm,comparisons,FDR,afShifts,fdrThreshs,esThreshs){
    ########################
-   if(shuffle){pIX=sample(1:nrow(df.glm))} else{pIX=1:nrow(df.glm)}
+  
+   pSig= Reduce("+",lapply(1:length(fdrThreshs),function(ii){
+     (0 + (FDR<=fdrThreshs[ii] & abs(afShifts)>=esThreshs[ii]))
+   }))
+   
    do.call(rbind,lapply(comparisons,function(cc){
      cc.ix=match(cc,comparisons)
      df.glm %>% mutate(ix=1:nrow(df.glm)) %>% 
        rename(coef.div=paste0("coef.",cc),p.div=paste0("p.",cc)) %>% 
        select(ix,chrom,pos,coef.div,p.div) %>% 
-       mutate(sigLevel=pSig[pIX,cc.ix],p.div=p.div[pIX],comparison=cc) %>% 
+       mutate(sigLevel=pSig[,cc.ix],FDR=FDR[,cc.ix],afShift=afShifts[,cc.ix],comparison=cc) %>% 
        filter(sigLevel>0,!is.na(p.div))
    })) %>% mutate(comparison=factor(comparison,comparisons)) 
  }
