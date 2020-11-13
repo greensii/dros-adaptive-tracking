@@ -336,4 +336,22 @@
   }
  #################
   
+########################
+  get_af_trajectories=function(siteIX=NULL,chrompos=NULL,){
+########################
+    list[sites,samps,afmat]=load_HAFs_with_baseline(HAFsFile,baselineFile)
+    if(is.null(siteIX)){
+      siteIX=sites %>% mutate(ix=1:nrow(sites)) %>% merge(chrompos,by.x=c("chrom","pos"),by.y=colnames(chrompos)) %>% pull(ix)
+    }
+    
+    samps <- samps %>% mutate(tpt=ifelse(is.na(tpt),0,tpt))
+    
+    df=do.call(rbind,lapply(siteIX,function(ix){
+      samps %>% mutate(af=afmat[ix,],ix,chrom=sites$chrom[ix],pos=sites$pos[ix])
+    }))
+    
+    return(df)
+  }
+  
+  
   

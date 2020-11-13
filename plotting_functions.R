@@ -130,7 +130,8 @@ make_manhattan=function(df.sig,df.clust=NULL,comparisonLabels=NULL,sigLevelLabel
     scale_color_manual(values=sigColors) + labs(color="")
   
   if(show_inversions){
-    inv.breaks=inv.breaks %>% group_by(chrom) %>% mutate(rr=rank(start)) %>% ungroup() compLabel=factor(comparisonLabels[length(comparisonLabels)],comparisonLabels)) 
+    inv.breaks=inv.breaks %>% group_by(chrom) %>% mutate(rr=rank(start)) %>% ungroup() %>% 
+      mutate(compLabel=factor(comparisonLabels[length(comparisonLabels)],comparisonLabels)) 
 inv.lines= inv.breaks %>% ungroup() %>% gather(key=posType,val=pos,start,stop)
 inv.labs=inv.breaks%>%group_by(chrom) %>% mutate(rr=rank(start),timeseg=ts_factor(timeseg.last)) %>% ungroup() %>% gather(key=winSide,val=pos,start,stop)%>%group_by(chrom,rr,name,timeseg)%>% summarise(pos=mean(pos))%>%ungroup()
 
@@ -144,6 +145,67 @@ gginv<- ggbase + suppressWarnings(geom_point(data=df.sig %>% group_by(chrom) %>%
 
 gg<-list(gg + theme(plot.margin=margin(t = .5, r = .5, b = 0, l = .5, unit = "pt")),gginv)
   }
+  
+  return(gg)
+}
+
+
+########################
+draw_af_trajectories=function(afData,colorby="s",rowcol="col",draw_cages=TRUE,mark_ts=TRUE){
+  ########################
+  
+  df <- afData %>% 
+    filter(!is.na(tpt)) %>% mutate(startT=as.numeric(chop(as.character(timeseg)," ",2)),stopT=as.numeric(chop(as.character(timeseg)," ",4))) %>%
+    group_by(chrom,pos,timeseg) %>%  
+    mutate(af0=mean(af[tpt==0]),po=mean(af[tpt==startT]), pt=mean(af[tpt==stopT]), shift=pt - po) %>% 
+    ungroup() %>% mutate(af=ifelse(shift<0,(af-af0)*-1,af-af0),
+                         af0=ifelse(af0>0.5,1-af0,af0),
+                         site=paste0(chrom,":",pos),
+                         s=calc_s_over_g(po,pt,3)) %>% 
+    rename("col"=colorby)
+  
+  
+  gg <- df %>%
+    ggplot(aes(x=tpt,y=af))
+  
+  ## timeseg markers
+  if(mark_ts){
+    gg <- gg + geom_ribbon(data = df %>% filter(stopT-startT == 1,tpt==startT | tpt==stopT) %>% group_by(tpt,timeseg) %>% 
+                             summarise(af=Inf) ,
+                           aes(ymin=-Inf,ymax=Inf),alpha=.6,fill="azure3") 
+  }
+  
+  ## per-cage lines
+  if(draw_cages){
+    gg<- gg +  geom_line(aes(group=paste0(site,cage)),alpha=.2,size=.5,color="gray") 
+  }
+  ## cross-cage average lines
+  gg <- gg + geom_line(data=df %>% group_by(tpt,site,timeseg,col) %>% summarise(af=mean(af)),
+                       aes(group=site,color=col),alpha=.2,size=1.5)
+  
+  ## highlight segment
+  gg <- gg + geom_line(data = df %>% filter(stopT-startT == 1) %>% group_by(tpt,site,timeseg,startT,stopT,col) %>% 
+                         summarise(af=mean(af))  %>% filter(tpt==startT | tpt==stopT),
+                       aes(group=site,color=col),alpha=.6,size=1.5) 
+  
+  ## add color label
+  if(colorby=="af0"){
+    if(rowcol=="row"){ gg <-gg + labs(color="Initial Minor Allele Frequency")}
+    if(rowcol=="col"){ gg <-gg + labs(color="Initial\nMinor\nAllele\nFrequency") }
+  }
+  if(colorby=="s"){
+    gg <-gg + 
+      labs(color="Estimated\nSelection\nCoefficient") 
+  }
+  
+  ## set orientation
+  if(rowcol=="row"){gg <- gg + facet_wrap(~timeseg,nrow=1)}
+  if(rowcol=="col"){gg <- gg + facet_wrap(~timeseg,ncol=1)}
+  
+  ## final fomatting
+  gg <- gg +theme_minimal() + scale_color_viridis_c() +
+    labs(x="Timepoint",y="Rising Allele Frequency (Difference from Baseline)")
+  
   
   return(gg)
 }

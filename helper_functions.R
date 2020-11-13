@@ -47,6 +47,28 @@ fun.mat=function (x,myfun) {
 }
 
 
+#############
+## Load data
+############
+
+### merge HAFs from cages and baseline
+add_baseline_to_HAFs=function(baselineFile,afFile){
+  
+  load(baselineFile); 
+  pickTrial=samps$trialNum==1
+  b.samps=samps[pickTrial,]
+  b.afmat=afmat[,pickTrial]
+  b.sites=sites %>% mutate(b.ix=1:nrow(sites))
+  
+  load(afFile)
+  sites$c.ix=1:nrow(sites)
+  sites=merge(sites,b.sites,by=c("chrom","pos")) %>% arrange(chrom,pos)
+  
+  samps=rbind(samps,b.samps,fill=TRUE)
+  afmat=cbind(afmat[sites$c.ix,],b.afmat[sites$b.ix,])
+  return(list(sites,samps,afmat))
+}
+
 ###############
 ## Transformations
 ###############
