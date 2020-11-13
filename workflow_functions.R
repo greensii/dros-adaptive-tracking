@@ -337,7 +337,7 @@
  #################
   
 ########################
-  get_af_trajectories=function(siteIX=NULL,chrompos=NULL,){
+  get_af_trajectories=function(siteIX=NULL,chrompos=NULL,HAFsFile,baselineFile){
 ########################
     list[sites,samps,afmat]=load_HAFs_with_baseline(HAFsFile,baselineFile)
     if(is.null(siteIX)){
