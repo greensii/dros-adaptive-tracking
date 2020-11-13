@@ -105,6 +105,9 @@ make_manhattan=function(df.sig,df.clust=NULL,comparisonLabels=NULL,sigLevelLabel
       guides(fill=FALSE) 
   }
   
+  gg <- gg + suppressWarnings(geom_point(aes(y=-log10(p.div),color=sigLabel),alpha=.8,size=1)) +
+    guides(color = guide_legend(override.aes = list(alpha = 1,size=3))) +
+    scale_color_manual(values=sigColors) + labs(color="")
   if(show_cluster_nums){
     gg<-gg+geom_text_repel(data = df.clust %>% filter(posType=="bestSNP.pos") ,
                            aes(y=0,label=clnum),size=3,alpha=1) 
@@ -125,9 +128,7 @@ make_manhattan=function(df.sig,df.clust=NULL,comparisonLabels=NULL,sigLevelLabel
     
   }
   
-  gg <- gg + suppressWarnings(geom_point(aes(y=-log10(p.div),color=sigLabel),alpha=.8,size=1)) +
-    guides(color = guide_legend(override.aes = list(alpha = 1,size=3))) +
-    scale_color_manual(values=sigColors) + labs(color="")
+  
   
   if(show_inversions){
     inv.breaks=inv.breaks %>% group_by(chrom) %>% mutate(rr=rank(start)) %>% ungroup() %>% 
