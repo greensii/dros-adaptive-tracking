@@ -52,7 +52,7 @@ fun.mat=function (x,myfun) {
 ############
 
 ### merge HAFs from cages and baseline
-add_baseline_to_HAFs=function(baselineFile,afFile){
+load_afs_with_baseline=function(afFile,baselineFile){
   
   load(baselineFile); 
   pickTrial=samps$trialNum==1

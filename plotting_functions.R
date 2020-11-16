@@ -152,7 +152,7 @@ gg<-list(gg + theme(plot.margin=margin(t = .5, r = .5, b = 0, l = .5, unit = "pt
 
 
 ########################
-draw_af_trajectories=function(afData,colorby="s",rowcol="col",draw_cages=TRUE,mark_ts=TRUE){
+draw_af_trajectories=function(afData,colorby="af0",rowcol="col",draw_cages=FALSE,mark_ts=TRUE,label_clNums=FALSE){
   ########################
   
   df <- afData %>% 
@@ -161,8 +161,9 @@ draw_af_trajectories=function(afData,colorby="s",rowcol="col",draw_cages=TRUE,ma
     mutate(af0=mean(af[tpt==0]),po=mean(af[tpt==startT]), pt=mean(af[tpt==stopT]), shift=pt - po) %>% 
     ungroup() %>% mutate(af=ifelse(shift<0,(af-af0)*-1,af-af0),
                          af0=ifelse(af0>0.5,1-af0,af0),
-                         site=paste0(chrom,":",pos),
-                         s=calc_s_over_g(po,pt,3)) %>% 
+                         site=paste0(chrom,":",pos)
+                         #s=calc_s_over_g(po,pt,3)
+                         ) %>% 
     rename("col"=colorby)
   
   
@@ -188,11 +189,19 @@ draw_af_trajectories=function(afData,colorby="s",rowcol="col",draw_cages=TRUE,ma
   gg <- gg + geom_line(data = df %>% filter(stopT-startT == 1) %>% group_by(tpt,site,timeseg,startT,stopT,col) %>% 
                          summarise(af=mean(af))  %>% filter(tpt==startT | tpt==stopT),
                        aes(group=site,color=col),alpha=.6,size=1.5) 
+  ## add cluster labels
+  if(label_clNums){
+    gg <- gg + geom_text_repel(data=df %>% filter(tpt==5) %>% 
+                                 group_by(chrom,tpt,cl,timeseg) %>% 
+                                 summarise(af=mean(af)) %>% 
+                                 mutate(clNum=paste0(chop(cl,"\\.",1),".",chrom)),
+                               aes(label=clNum),size=2 )
+  }
   
   ## add color label
   if(colorby=="af0"){
     if(rowcol=="row"){ gg <-gg + labs(color="Initial Minor Allele Frequency")}
-    if(rowcol=="col"){ gg <-gg + labs(color="Initial\nMinor\nAllele\nFrequency") }
+    if(rowcol=="col"){ gg <-gg + labs(color="Initial MAF") }
   }
   if(colorby=="s"){
     gg <-gg + 

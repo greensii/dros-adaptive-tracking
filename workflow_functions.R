@@ -52,12 +52,16 @@
       find_snp_pairs(maxDist=maxSNPPairDist) %>% filter(pairType=="inter") %>%
       calc_Rsq_for_snp_pairs(ncores=ncores,snpFile) %>% dplyr::select(-snp1.cl,-snp2.cl) %>%
       merge_linked_clusters(df.clust,df.sig,Rsq.thresh = linkedClusterThresh) 
-    #save(df.clust,file=paste0("Rdata/GLMLOO.drop",dropCage,"_clusters.Rdata"))
-    params=list(glmFile,comparisons,cageSet,fdrThreshs,esThreshs,
-                winSize,winShift,maxClusterBreak,maxSNPPairDist,linkedClusterThresh,ncores)
+    
+    cat("extracting trajectories for top cluster sites..\n");flush.console();Sys.sleep(1)
+    df.traj=get_af_trajectories(chrompos=df.clust %>% select(chrom,bestSNP.pos),HAFsFile,baselineFile)
+    
     cat("finished.\n");flush.console();Sys.sleep(1)
     cat(nrow(df.sig),"parallel sites in",nrow(df.clust),"clusters\n");flush.console();Sys.sleep(1)
-    results=list("sigSites"=df.sig,"wins"=df.wins,"clusters"=df.clust,"params"=params)
+    
+    params=list(glmFile,comparisons,cageSet,fdrThreshs,esThreshs,
+                winSize,winShift,maxClusterBreak,maxSNPPairDist,linkedClusterThresh,ncores)
+    results=list("sigSites"=df.sig,"wins"=df.wins,"clusters"=df.clust,"clMarkerAF"=df.traj,"params"=params)
     return(results)
  }
  
@@ -337,12 +341,10 @@
  #################
   
 ########################
-  get_af_trajectories=function(siteIX=NULL,chrompos=NULL,HAFsFile,baselineFile){
+  get_af_trajectories=function(chrompos,HAFsFile,baselineFile){
 ########################
-    list[sites,samps,afmat]=load_HAFs_with_baseline(HAFsFile,baselineFile)
-    if(is.null(siteIX)){
-      siteIX=sites %>% mutate(ix=1:nrow(sites)) %>% merge(chrompos,by.x=c("chrom","pos"),by.y=colnames(chrompos)) %>% pull(ix)
-    }
+    list[sites,samps,afmat]=load_afs_with_baseline(HAFsFile,baselineFile)
+    siteIX=sites %>% mutate(ix=1:nrow(sites)) %>% merge(chrompos,by.x=c("chrom","pos"),by.y=colnames(chrompos)) %>% pull(ix)
     
     samps <- samps %>% mutate(tpt=ifelse(is.na(tpt),0,tpt))
     
