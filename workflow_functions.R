@@ -13,8 +13,8 @@
 
 
   
- ####################### 
- RunFullWorkflow=function(afFile,glmFile,snpFile,comparisons,cageSet,
+####################### 
+RunFullWorkflow=function(afFile,glmFile,snpFile,comparisons,cageSet,
                           fdrThreshs=c(.2,.05,.01),esThreshs=c(0,0.02,0.02),winSize=500,winShift=100,maxClusterBreak=100,
                           maxSNPPairDist=3000000,linkedClusterThresh=0.03,ncores=15){
 ##################
@@ -64,7 +64,9 @@
     results=list("sigSites"=df.sig,"wins"=df.wins,"clusters"=df.clust,"clMarkerAF"=df.traj,"params"=params)
     return(results)
  }
- 
+########################
+
+
 #############
  get_glm_FDR=function(df.glm,comparisons){
 ################
@@ -340,8 +342,12 @@
   }
  #################
   
-########################
-  get_af_trajectories=function(chrompos,HAFsFile,baselineFile){
+  ##################
+  ## ADDITIONS TO WORKFLOW
+  ##################
+  
+ ########################
+ get_af_trajectories=function(chrompos,HAFsFile,baselineFile){
 ########################
     list[sites,samps,afmat]=load_afs_with_baseline(HAFsFile,baselineFile)
     siteIX=sites %>% mutate(ix=1:nrow(sites)) %>% merge(chrompos,by.x=c("chrom","pos"),by.y=colnames(chrompos)) %>% pull(ix)
@@ -354,6 +360,44 @@
     
     return(df)
   }
+ ######################
   
-  
+ ########################
+ get_loo_shifts=function(results.loo,afFile,snpFile,comparisons,timesegs){
+  ########################
+    load(afFile)
+    freqBins=assign_SNPs_freqBins(sites,snpFile)
+    shiftGroups=c("significant parallel shifts","significant anti-parallel shifts","shifts not significant")
+    
+    
+    shifts.loo=do.call(rbind,lapply(1:length(results.loo),function(dropCage){
+      shifts.train=get_af_shifts(afmat,samps,cage_set=cages[-dropCage],comparisons)
+      shifts.test=get_af_shifts(afmat,samps,cage_set=dropCage,comparisons)
+      sigIX=results.loo[[dropCage]][["sigSites"]] %>% filter(sigLevel>1) %>% 
+        dplyr::select(ix,comparison) %>% mutate(comparison=as.numeric(comparison)) %>% as.matrix
+      shifts=freqBins %>% mutate(ix=1:nrow(freqBins),sig=ifelse(ix%in% sigIX[,1],"sig","matched")) %>%
+        group_by(chrom,freq,sig) %>% mutate(rr=sample(rank(pos))) %>%
+        ungroup() %>% dplyr::select(-pos) %>%
+        spread(key="sig",val="ix") %>% 
+        filter(!is.na(sig)) %>% merge(sigIX,by.x="sig",by.y="ix",all=T) %>% 
+        gather(key="site",val="ix",sig,matched) %>%
+        mutate(trainDir=c(-1,1)[1+as.numeric(shifts.train[cbind(ix,comparison)]>0)]) 
+      
+      shifts<-cbind(shifts %>% dplyr::select(chrom,comparison,site),
+                    shifts.test[shifts$ix,] %>% mutate_all(function(x){x*shifts$trainDir}) 
+                    )  %>% gather(key="c.meas",val="shift",-chrom,-comparison,-site) %>% 
+        mutate(c.meas=match(chop(c.meas,"\\.",2),comparisons)) %>%
+        mutate(dropCage=dropCage)   
+  })) %>% group_by(comparison,dropCage,c.meas) %>% mutate(pval=t.test(shift[site=="matched"],shift[site=="sig"])$p.value) %>% 
+      group_by(comparison,site,c.meas,dropCage) %>% summarise(shift=median(shift),pval=unique(pval)) %>%
+      mutate(shiftGroup=ifelse(p.adjust(pval,method = "BH")<.05,ifelse(shift>0,shiftGroups[1],shiftGroups[2]),shiftGroups[3])) %>%
+      mutate(
+        tpt.ID=factor(paste0("SNPs ID'd in 9 cages\nfrom",gsub("Timepoint","",timesegs[comparison])),
+                      paste0("SNPs ID'd in 9 cages\nfrom",gsub("Timepoint","",timesegs))),
+        tpt.measured=factor(gsub("Timepoint","",paste0("shifts\n",timesegs[c.meas])),
+                            gsub("Timepoint","",paste0("shifts\n",timesegs)))
+      )
+    return(shifts.loo)
+  }
+ ########################
   

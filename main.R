@@ -20,6 +20,7 @@ glmFile="Rdata//glm.Ecages.Rdata"
 
 ## globals
 chroms=c("2L","2R","3L","3R","X")
+cages=1:10
 comparisons=c("2_1","3_2","4_3","5_4","5_1")
 timesegs=c("Timepoint 1 --> 2", "Timepoint 2 --> 3", "Timepoint 3 --> 4","Timepoint 4 --> 5","Timepoint 1 --> 5")
 colorScheme=c("BH-FDR<.2"="lightgray",
@@ -46,4 +47,20 @@ source("helper_functions.R")
 source("load_packages.R")
 setwd(localDir)
 
-results=RunFullWorkflow(HAFsFile,glmFile,snpFile,comparisons,1:10,fdrThreshs,esThreshs,windowSize,windowShift,maxClusterGap,maxSNPpairDist,linkageThresh,maxthreads)
+### RUN WORKFLOW
+
+## for all cages together
+results=RunFullWorkflow(HAFsFile,glmFile,snpFile,comparisons,cages,fdrThreshs,esThreshs,windowSize,windowShift,maxClusterGap,maxSNPpairDist,linkageThresh,maxthreads)
+save(results,file="Rdata/results.orch14.Rdata")
+
+## for each leave-one-cage-out round
+results.loo=lapply(cages,function(dropCage){
+  loofile=paste0(looDir,"/glm.Ecages",paste0(sort(as.character(cages)[-dropCage]),collapse=""),".Rdata")
+  RunFullWorkflow(HAFsFile,glmFile,snpFile,comparisons,cages,fdrThreshs,esThreshs,windowSize,windowShift,maxClusterGap,maxSNPpairDist,linkageThresh,maxthreads)
+})
+shifts.loo=get_loo_shifts(results.loo,afFile,snpFile,comparisons)
+save(results.loo,shifts.loo,file="Rdata/results_loo.orch14.Rdata")
+
+
+## backup to teamdrive
+system(paste0("rclone sync Rdata ",teamdriveDir,"/Rdata"),intern=T)

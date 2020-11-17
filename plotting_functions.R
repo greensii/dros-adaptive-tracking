@@ -79,11 +79,32 @@ make_window_GLM_plot=function(df,scoreCol,colorCol,myalpha=.7,myshape=1){
 ###################
 ## main functions
 ##################
+
+##################
+make_loo_plot=function(medians.loo){
+##################
+  medians.loo %>% { ggplot(data=filter(.,site=="sig")) + 
+      geom_jitter(aes(x=as.numeric(tpt.measured) -.2,y=shift,color=shiftGroup),width=.05,height=0,size=2,shape=19,alpha=.7) +
+      geom_jitter(data=filter(.,site=="matched"),aes(x=as.numeric(tpt.measured) +.2,y=shift),color="darkslategray",width=.05,height=0,size=4,shape="x",alpha=.7)
+  } + facet_wrap(~ tpt.ID,scales = "free_x",nrow=1) + 
+    labs(x="",y="median phased shift in 10th cage",color="",shape="") +
+    scale_color_manual(values=c("gray","lightgreen","coral")) + 
+    scale_x_continuous(breaks=1:5,labels=levels(medians.loo$tpt.measured),expand = expand_scale(add = .4)) + 
+    geom_hline(yintercept = 0) + #
+    theme_minimal() + theme(panel.background  = element_rect(fill = 'transparent',color="darkslategray"),
+                            panel.grid.major.x = element_blank(),
+                            legend.position = "top",
+                            strip.text = element_text(size=10),
+                            axis.text.x=element_text(size=7)) + 
+    lims(y=c(-.075,.075))
+}
+
+
+##################
 make_manhattan=function(df.sig,df.clust=NULL,comparisonLabels=NULL,sigLevelLabels=NULL,sigColors=NULL,
                         show_inversions=TRUE,show_cluster_bars=FALSE,show_cluster_lines=FALSE,show_cluster_points=TRUE,show_cluster_nums=FALSE,
                         cluster_line_color="gray",ylims=c(-3,11)){
-  ########################
-  library(ggrepel)
+########################
   df.sig <- df.sig %>% mutate(sigLabel=factor(sigLevelLabels[sigLevel],sigLevelLabels),compLabel=factor(comparisonLabels[comparison],comparisonLabels))
   df.clust <-df.clust %>% group_by(comparison,chrom) %>% mutate(ct=n()) %>% mutate(clnum=rank(startPos)) %>% ungroup() %>%
     mutate(clfill=factor(clnum%%2)) %>% gather(key=posType,val=pos,startPos,endPos,bestSNP.pos) %>% 
@@ -219,3 +240,4 @@ draw_af_trajectories=function(afData,colorby="af0",rowcol="col",draw_cages=FALSE
   
   return(gg)
 }
+###################
