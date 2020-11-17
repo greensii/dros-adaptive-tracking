@@ -51,6 +51,21 @@ fun.mat=function (x,myfun) {
 ## Load data
 ############
 
+make_AFdata=function(afDir,afFile,chroms){
+  df.af=do.call(rbind,lapply(chroms,function(chrom){
+    files=system(paste0("ls ",afDir,"/*.",chrom,".afSite"),intern=T) 
+    df=Reduce(function(d1,d2){merge(d1,d2,by="pos")},lapply(files,function(x){df=fread(x);
+    colnames(df)[2]=gsub(paste0(".bam.",chrom,".afSite"),"",x);df}))
+    df$chrom=chrom
+    df}))
+  
+  samps=data.frame(sampID=colnames(df.af)[c(-1,-ncol(df.af))],stringsAsFactors=FALSE)
+  sites=df.af[,c("chrom","pos"),with=F]
+  afmat=as.matrix(df.af[,c(-1,-ncol(df.af)),with=F])
+  
+  save(samps,sites,afmat,file=afFile)
+}
+
 ### merge HAFs from cages and baseline
 load_afs_with_baseline=function(afFile,baselineFile){
   
