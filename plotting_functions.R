@@ -81,7 +81,7 @@ make_window_GLM_plot=function(df,scoreCol,colorCol,myalpha=.7,myshape=1){
 ##################
 
 ##################
-make_loo_plot=function(medians.loo){
+make_loo_plot=function(medians.loo,ylims=c(-.075,.075)){
 ##################
   medians.loo %>% { ggplot(data=filter(.,site=="sig")) + 
       geom_jitter(aes(x=as.numeric(tpt.measured) -.2,y=shift,color=shiftGroup),width=.05,height=0,size=2,shape=19,alpha=.7) +
@@ -96,29 +96,27 @@ make_loo_plot=function(medians.loo){
                             legend.position = "top",
                             strip.text = element_text(size=10),
                             axis.text.x=element_text(size=7)) + 
-    lims(y=c(-.075,.075))
+    lims(y=ylims)
 }
 
 
 ##################
 make_manhattan=function(df.sig,df.clust=NULL,comparisonLabels=NULL,sigLevelLabels=NULL,sigColors=NULL,
-                        show_inversions=TRUE,show_cluster_bars=FALSE,show_cluster_lines=FALSE,show_cluster_points=TRUE,show_cluster_nums=FALSE,
-                        cluster_line_color="gray",ylims=c(-3,11)){
+                        show_cluster_bars=FALSE,show_cluster_points=TRUE,show_cluster_nums=FALSE,
+                        ylims=c(-3,11)){
 ########################
   df.sig <- df.sig %>% mutate(sigLabel=factor(sigLevelLabels[sigLevel],sigLevelLabels),compLabel=factor(comparisonLabels[comparison],comparisonLabels))
   df.clust <-df.clust %>% group_by(comparison,chrom) %>% mutate(ct=n()) %>% mutate(clnum=rank(startPos)) %>% ungroup() %>%
     mutate(clfill=factor(clnum%%2)) %>% gather(key=posType,val=pos,startPos,endPos,bestSNP.pos) %>% 
     mutate(compLabel=factor(comparisonLabels[comparison],comparisonLabels)) 
   
-  ggbase <- df.sig %>% ggplot(aes(x=pos/1000000))+ theme_minimal() 
-  
-  
-  gg<- ggbase + lims(y=ylims)  +
+  ## set up axes
+  gg <- df.sig %>% ggplot(aes(x=pos/1000000))+ theme_minimal() + lims(y=ylims)  +
     facet_grid(compLabel ~ chrom,scales="free_x", switch="y") + 
-    theme(legend.position = "top",strip.text = element_text(size=16),strip.text.y = element_text(size=12)) +
-    labs(x="Position (Mb)",y="-log10(parallelism p-value)")  + theme(strip.text.y = element_text(size=10))
+    theme(legend.position = "top",strip.text = element_text(size=16),strip.text.y = element_text(size=10)) +
+    labs(x="Position (Mb)",y="-log10(FDR-corrected p-value)")  
   
-  
+  ## add bars for clusters
   if(show_cluster_bars){
     gg<-gg+geom_ribbon(data =  df.clust, aes(group=cl,fill=clfill),ymin=0,ymax=Inf,na.rm=TRUE,alpha=.5) + 
       # scale_fill_gradientn(colours=brewer.pal(2,"Spectral"))
@@ -126,54 +124,49 @@ make_manhattan=function(df.sig,df.clust=NULL,comparisonLabels=NULL,sigLevelLabel
       guides(fill=FALSE) 
   }
   
-  gg <- gg + suppressWarnings(geom_point(aes(y=-log10(p.div),color=sigLabel),alpha=.8,size=1)) +
+  ## add points for sites
+  gg <- gg + suppressWarnings(geom_point(aes(y=-log10(FDR),color=sigLabel),alpha=.8,size=1)) +
     guides(color = guide_legend(override.aes = list(alpha = 1,size=3))) +
     scale_color_manual(values=sigColors) + labs(color="")
+  
+  ## add labels to clusters
   if(show_cluster_nums){
     gg<-gg+geom_text_repel(data = df.clust %>% filter(posType=="bestSNP.pos") ,
                            aes(y=0,label=clnum),size=3,alpha=1) 
   }
   
-  if(show_cluster_lines){
-    gg<-gg+
-      geom_ribbon(data = df.clust ,
-                  aes(fill=af0,group=cl),ymin=10,ymax=11,alpha=.49) 
-    
-  }
-  
+  ## points for cluster markers
   if(show_cluster_points){
-    gg<-gg+
-      geom_point(data = df.clust %>% filter(posType=="bestSNP.pos"),
+    gg<-gg+ geom_point(data = df.clust %>% filter(posType=="bestSNP.pos"),
                  shape=19,y=0,color="darkslategray",size=.4) 
     
     
   }
-  
-  
-  
-  if(show_inversions){
-    inv.breaks=inv.breaks %>% group_by(chrom) %>% mutate(rr=rank(start)) %>% ungroup() %>% 
-      mutate(compLabel=factor(comparisonLabels[length(comparisonLabels)],comparisonLabels)) 
-inv.lines= inv.breaks %>% ungroup() %>% gather(key=posType,val=pos,start,stop)
-inv.labs=inv.breaks%>%group_by(chrom) %>% mutate(rr=rank(start),timeseg=ts_factor(timeseg.last)) %>% ungroup() %>% gather(key=winSide,val=pos,start,stop)%>%group_by(chrom,rr,name,timeseg)%>% summarise(pos=mean(pos))%>%ungroup()
-
-gginv<- ggbase + suppressWarnings(geom_point(data=df.sig %>% group_by(chrom) %>% filter(pos==min(pos) | pos==max(pos)),
-                                             aes(y=0),color="transparent")) +
-  geom_line(data=inv.lines,aes(group=name,y=-rr),alpha=1,color="black") + 
-  geom_text_repel(data=inv.labs,aes(label=name,y=-rr),size=4,alpha=1,point.padding=.5,min.segment.length = 0,nudge_y=-1.5,nudge_x=-.25) +
-  facet_grid( ~ chrom,scales="free_x") + lims(y=c(-5,0)) +
-  labs(x="",y="") + theme(panel.grid = element_blank(),axis.line=element_blank(),axis.ticks = element_blank(),axis.text=element_blank(),strip.text = element_blank(),
-                          plot.margin=margin(t = 0, r = .5, b = .5, l = .5, unit = "pt"))
-
-gg<-list(gg + theme(plot.margin=margin(t = .5, r = .5, b = 0, l = .5, unit = "pt")),gginv)
-  }
-  
   return(gg)
 }
+####################
 
+####################
+make_inversion_lines=function(invFile,results){
+###################
+    inversions=fread(invFile) %>% group_by(chrom) %>% mutate(rr=rank(start)) %>% ungroup() 
+  inv.lines= inversions %>% gather(key=posType,val=pos,start,stop) 
+  inv.labs=inv.lines %>% group_by(chrom,rr,inversion)%>% summarise(pos=max(pos)+2400000,dummy=0)%>%ungroup()
+  ggInv=results$sigSites %>% ggplot(aes(x=pos/1000000)) + geom_point(y=0,shape=NA) + 
+    geom_line(data=inv.lines,aes(y=-1*rr)) + 
+    geom_text(data=inv.labs,aes(y=-1*rr,label=inversion),size=2.5) + 
+    facet_grid(dummy~chrom,scales="free_x",switch="y") + theme_minimal() + 
+    lims(y=c(-5,0))+ 
+    theme(panel.grid = element_blank(),axis.line=element_blank(),axis.ticks = element_blank(),
+          strip.text.y = element_text(color="transparent",size=16),strip.text.x=element_blank(),
+          axis.text.x=element_blank(),axis.text.y=element_text(color="transparent")) + 
+    guides(color=FALSE) + labs(x="",y="")
+  return(ggInv)
+}
+#####################
 
 ########################
-draw_af_trajectories=function(afData,colorby="af0",rowcol="col",draw_cages=FALSE,mark_ts=TRUE,label_clNums=FALSE){
+draw_af_trajectories=function(afData,colorby="af0",rowcol="col",draw_cages=FALSE,mark_ts=TRUE,label_clNums=NULL){
   ########################
   
   df <- afData %>% 
@@ -211,8 +204,8 @@ draw_af_trajectories=function(afData,colorby="af0",rowcol="col",draw_cages=FALSE
                          summarise(af=mean(af))  %>% filter(tpt==startT | tpt==stopT),
                        aes(group=site,color=col),alpha=.6,size=1.5) 
   ## add cluster labels
-  if(label_clNums){
-    gg <- gg + geom_text_repel(data=df %>% filter(tpt==5) %>% 
+  if(length(label_clNums)>0){
+    gg <- gg + geom_text_repel(data=df %>% filter(tpt==5,comparison %in% label_clNums) %>% 
                                  group_by(chrom,tpt,cl,timeseg) %>% 
                                  summarise(af=mean(af)) %>% 
                                  mutate(clNum=paste0(chop(cl,"\\.",1),".",chrom)),
