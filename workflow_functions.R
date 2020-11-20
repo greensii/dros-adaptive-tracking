@@ -242,12 +242,17 @@ RunFullWorkflow=function(afFile,glmFile,snpFile,comparisons,cageSet,
  #############
   
  ################
- find_snp_pairs=function(df.snps,maxDist){
+ find_snp_pairs=function(df.snps,maxDist,cross_ts=FALSE){
   ################
     do.call(rbind,lapply(unique(df.snps$chrom),function(chrom){
       do.call(rbind,lapply(unique(df.snps$comparison),function(cc){
-        sigIX=which(df.snps$chrom==chrom & df.snps$comparison==cc)
-        sigIX=expand.grid(sigIX,sigIX) %>% filter(Var1<Var2) 
+        sigIX1=which(df.snps$chrom==chrom & df.snps$comparison==cc)
+        if(cross_ts){
+          sigIX2=which(df.snps$chrom==chrom & df.snps$comparison!=cc)
+        } else{
+          sigIX2=which(df.snps$chrom==chrom & df.snps$comparison==cc)
+        }
+        sigIX=expand.grid(sigIX1,sigIX2) %>% filter(Var1<Var2) 
         df.pairs=data.frame(snp1.pos=df.snps$pos[sigIX$Var1],snp2.pos=df.snps$pos[sigIX$Var2])
         if("cl" %in% colnames(df.snps)){
           df.pairs <- df.pairs %>% mutate(snp1.cl=df.snps$cl[sigIX$Var1],snp2.cl=df.snps$cl[sigIX$Var2]) %>%
