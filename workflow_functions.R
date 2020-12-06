@@ -400,7 +400,7 @@ RunFullWorkflow=function(afFile,glmFile,snpFile,comparisons,cageSet,
   })) %>% group_by(comparison,dropCage,c.meas) %>% 
       mutate(pval=get_pval(shift[site=="matched"],shift[site=="sig"],'ttest'),
              pval.nonpar=get_pval(shift[site=="matched"],shift[site=="sig"],'ranksum')) %>% 
-      group_by(comparison,site,c.meas,dropCage) %>% summarise(nSites=n(),nPos=sum(shift>0),shift=median(shift),pval=unique(pval)) %>%
+      group_by(comparison,site,c.meas,dropCage) %>% summarise(nSites=n(),nPos=sum(shift>0),shift=median(shift),pval=unique(pval),pval.nonpar=unique(pval.nonpar)) %>%
       ungroup() %>%
       mutate(shiftGroup=ifelse(p.adjust(pval,method = "BH")<.05,ifelse(shift>0,shiftGroups[1],shiftGroups[2]),shiftGroups[3])) %>%
       mutate(
