@@ -82,23 +82,23 @@ make_window_GLM_plot=function(df,scoreCol,colorCol,myalpha=.7,myshape=1){
 
 ##################
 make_loo_plot=function(medians.loo,ylims=c(-.075,.075)){
-##################
+  ##################
   medians.loo %>% { ggplot(data=filter(.,site=="sig")) + 
       geom_jitter(aes(x=as.numeric(tpt.measured) -.2,y=shift,color=shiftGroup),width=.05,height=0,size=2,shape=19,alpha=.7) +
       geom_jitter(data=filter(.,site=="matched"),aes(x=as.numeric(tpt.measured) +.2,y=shift),color="darkslategray",width=.05,height=0,size=4,shape="x",alpha=.7)
   } + facet_wrap(~ tpt.ID,scales = "free_x",nrow=1) + 
     labs(x="",y="median phased shift in 10th cage",color="",shape="") +
-    scale_color_manual(values=c("gray","lightgreen","coral")) + 
-    scale_x_continuous(breaks=1:5,labels=levels(medians.loo$tpt.measured),expand = expand_scale(add = .4)) + 
+    scale_color_manual(values=c("gray","green3","coral")) + 
+    scale_x_continuous(breaks=1:5,labels=levels(medians.loo$tpt.measured),expand = expand_scale(add = .4),position="top") + 
     geom_hline(yintercept = 0) + #
-    theme_minimal() + theme(panel.background  = element_rect(fill = 'transparent',color="darkslategray"),
+    theme_minimal() + theme(legend.text = element_text(size=14),
+                            panel.background  = element_rect(fill = 'transparent',color="darkslategray"),
                             panel.grid.major.x = element_blank(),
                             legend.position = "top",
-                            strip.text = element_text(size=10),
-                            axis.text.x=element_text(size=7)) + 
+                            strip.text.x = element_blank()) + 
     lims(y=ylims)
 }
-
+############
 
 ##################
 make_manhattan=function(df.sig,df.clust=NULL,comparisonLabels=NULL,sigLevelLabels=NULL,sigColors=NULL,
@@ -153,7 +153,7 @@ make_inversion_lines=function(invFile,results){
   inv.lines= inversions %>% gather(key=posType,val=pos,start,stop) 
   inv.labs=inv.lines %>% group_by(chrom,rr,inversion)%>% summarise(pos=max(pos)+2400000,dummy=0)%>%ungroup()
   ggInv=results$sigSites %>% ggplot(aes(x=pos/1000000)) + geom_point(y=0,shape=NA) + 
-    geom_line(data=inv.lines,aes(y=-1*rr)) + 
+    geom_line(data=inv.lines,aes(y=-1*rr,group=inversion)) + 
     geom_text(data=inv.labs,aes(y=-1*rr,label=inversion),size=2.5) + 
     facet_grid(dummy~chrom,scales="free_x",switch="y") + theme_minimal() + 
     lims(y=c(-5,0))+ 
@@ -170,15 +170,15 @@ draw_af_trajectories=function(afData,colorby="af0",rowcol="col",draw_cages=FALSE
   ########################
   
   df <- afData %>% 
-    filter(!is.na(tpt)) %>% mutate(startT=as.numeric(chop(as.character(timeseg)," ",2)),stopT=as.numeric(chop(as.character(timeseg)," ",4))) %>%
+    filter(!is.na(timeseg)) %>% mutate(startT=as.numeric(chop(as.character(timeseg)," ",2)),stopT=as.numeric(chop(as.character(timeseg)," ",4))) %>%
     group_by(chrom,pos,timeseg) %>%  
     mutate(af0=mean(af[tpt==0]),po=mean(af[tpt==startT]), pt=mean(af[tpt==stopT]), shift=pt - po) %>% 
     ungroup() %>% mutate(af=ifelse(shift<0,(af-af0)*-1,af-af0),
                          af0=ifelse(af0>0.5,1-af0,af0),
                          site=paste0(chrom,":",pos)
                          #s=calc_s_over_g(po,pt,3)
-                         ) %>% 
-    rename("col"=colorby)
+    ) 
+  df <- df %>% mutate(color=df[[colorby]])
   
   
   gg <- df %>%
@@ -196,18 +196,18 @@ draw_af_trajectories=function(afData,colorby="af0",rowcol="col",draw_cages=FALSE
     gg<- gg +  geom_line(aes(group=paste0(site,cage)),alpha=.2,size=.5,color="gray") 
   }
   ## cross-cage average lines
-  gg <- gg + geom_line(data=df %>% group_by(tpt,site,timeseg,col) %>% summarise(af=mean(af)),
-                       aes(group=site,color=col),alpha=.2,size=1.5)
+  gg <- gg + geom_line(data=df %>% group_by(tpt,site,timeseg,color) %>% summarise(af=mean(af)),
+                       aes(group=site,color=color),alpha=.2,size=1.5)
   
   ## highlight segment
-  gg <- gg + geom_line(data = df %>% filter(stopT-startT == 1) %>% group_by(tpt,site,timeseg,startT,stopT,col) %>% 
+  gg <- gg + geom_line(data = df %>% filter(stopT-startT == 1) %>% group_by(tpt,site,timeseg,startT,stopT,color) %>% 
                          summarise(af=mean(af))  %>% filter(tpt==startT | tpt==stopT),
-                       aes(group=site,color=col),alpha=.6,size=1.5) 
+                       aes(group=site,color=color),alpha=.6,size=1.5) 
   ## add cluster labels
   if(length(label_clNums)>0){
-    gg <- gg + geom_text_repel(data=df %>% filter(tpt==5,comparison %in% label_clNums) %>% 
-                                 group_by(chrom,tpt,cl,timeseg) %>% 
+    gg <- gg + geom_text_repel(data=df %>% group_by(chrom,tpt,cl,timeseg) %>% 
                                  summarise(af=mean(af)) %>% 
+                                 filter(tpt==5,timeseg %in% levels(timeseg)[label_clNums]) %>% 
                                  mutate(clNum=paste0(chop(cl,"\\.",1),".",chrom)),
                                aes(label=clNum),size=2 )
   }
@@ -216,10 +216,12 @@ draw_af_trajectories=function(afData,colorby="af0",rowcol="col",draw_cages=FALSE
   if(colorby=="af0"){
     if(rowcol=="row"){ gg <-gg + labs(color="Initial Minor Allele Frequency")}
     if(rowcol=="col"){ gg <-gg + labs(color="Initial MAF") }
-  }
-  if(colorby=="s"){
-    gg <-gg + 
-      labs(color="Estimated\nSelection\nCoefficient") 
+  } else{
+    
+    if(colorby=="s"){
+      gg <-gg + 
+        labs(color="Estimated\nSelection\nCoefficient") 
+    } else{gg<-gg + labs(color="")}
   }
   
   ## set orientation
@@ -227,10 +229,15 @@ draw_af_trajectories=function(afData,colorby="af0",rowcol="col",draw_cages=FALSE
   if(rowcol=="col"){gg <- gg + facet_wrap(~timeseg,ncol=1)}
   
   ## final fomatting
-  gg <- gg +theme_minimal() + scale_color_viridis_c() +
+  gg <- gg +theme_minimal() + 
     labs(x="Timepoint",y="Rising Allele Frequency (Difference from Baseline)")
+  
+  if(is.numeric(df$color)){gg <- gg+scale_color_viridis_c()} else{
+    gg<-gg+scale_color_brewer(palette="Spectral") 
+  }
   
   
   return(gg)
 }
+
 ###################

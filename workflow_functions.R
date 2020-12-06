@@ -374,6 +374,10 @@ RunFullWorkflow=function(afFile,glmFile,snpFile,comparisons,cageSet,
     freqBins=assign_SNPs_freqBins(sites,snpFile)
     shiftGroups=c("significant parallel shifts","significant anti-parallel shifts","shifts not significant")
     
+    get_pval=function(set1,set2,sigMetric){
+      if(sigMetric=="ttest"){return(t.test(set1,set2)$p.value)}
+      if(sigMetric=="ranksum"){return(wilcox.test(set1,set2)$p.value)}
+    }
     
     shifts.loo=do.call(rbind,lapply(1:length(results.loo),function(dropCage){
       shifts.train=get_af_shifts(afmat,samps,cage_set=cages[-dropCage],comparisons)
@@ -393,8 +397,11 @@ RunFullWorkflow=function(afFile,glmFile,snpFile,comparisons,cageSet,
                     )  %>% gather(key="c.meas",val="shift",-chrom,-comparison,-site) %>% 
         mutate(c.meas=match(chop(c.meas,"\\.",2),comparisons)) %>%
         mutate(dropCage=dropCage)   
-  })) %>% group_by(comparison,dropCage,c.meas) %>% mutate(pval=t.test(shift[site=="matched"],shift[site=="sig"])$p.value) %>% 
-      group_by(comparison,site,c.meas,dropCage) %>% summarise(shift=median(shift),pval=unique(pval)) %>%
+  })) %>% group_by(comparison,dropCage,c.meas) %>% 
+      mutate(pval=get_pval(shift[site=="matched"],shift[site=="sig"],'ttest'),
+             pval.nonpar=get_pval(shift[site=="matched"],shift[site=="sig"],'ranksum')) %>% 
+      group_by(comparison,site,c.meas,dropCage) %>% summarise(shift=median(shift),pval=unique(pval),nSites=n(),nPos=sum(shift>0)) %>%
+      ungroup() %>%
       mutate(shiftGroup=ifelse(p.adjust(pval,method = "BH")<.05,ifelse(shift>0,shiftGroups[1],shiftGroups[2]),shiftGroups[3])) %>%
       mutate(
         tpt.ID=factor(paste0("SNPs ID'd in 9 cages\nfrom",gsub("Timepoint","",timesegs[comparison])),
