@@ -381,4 +381,30 @@ mark_centro_telo_meres=function(df){
   return(seq_along(df$pos) %in% mask)
 }
 
+get_inversionMarker_linkage=function(df.sig,inv.alleles,snpFile){
+  ########################
+  merge(df.sig,do.call(rbind,lapply(chroms[1:4],function(mychrom){
+    snps=fread(gsub("CHROM",mychrom,snpFile));snps[snps<0]=NA
+    
+    invMask=snps[[1]] %in% (inv.alleles %>% filter(chrom==mychrom) %>% pull(pos)); 
+    sigMask=snps[[1]] %in% (df.sig %>% filter(chrom==mychrom) %>% pull(pos)); 
+    cat(mychrom,"inversion markers:",sum(invMask),"cluster sites:",sum(sigMask),"\n")
+    
+    if(sum(invMask)>0 & sum(sigMask)>0){
+      invFreq=rowSums(snps[invMask,-1],na.rm=T)/rowSums(!is.na(snps[invMask,-1]))
+      sigFreq=rowSums(snps[sigMask,-1],na.rm=T)/rowSums(!is.na(snps[sigMask,-1]))
+      
+      cc=cor(t(snps[invMask,-1]),t(snps[sigMask,-1]),use="p")^2;
+      
+      data.frame(cc) %>% setNames(paste0("p.",snps[[1]][sigMask])) %>% 
+        mutate(ipos=snps[[1]][invMask],ifreq=invFreq,iname=inv.alleles$Inversion[match(ipos,inv.alleles$pos)]) %>%
+        gather(key=pos,val=Rsq,-ipos,-iname,-ifreq) %>% 
+        mutate(chrom=mychrom,pos=as.numeric(chop(pos,"\\.",2)),freq=sigFreq[match(pos,snps[[1]][sigMask])])
+    } else{return(NULL)}#%>%
+    # group_by(chrom,pos,freq) %>% 
+    # summarise(inv.Rsq=max(Rsq),inv.pos=ipos[inv.Rsq==Rsq][1],inv.name=iname[inv.Rsq==Rsq][1],inv.freq=ifreq[inv.Rsq==Rsq][1])
+  })),by=c("chrom","pos"))
+}
+
+
 

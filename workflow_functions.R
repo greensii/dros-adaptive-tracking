@@ -287,7 +287,9 @@ RunFullWorkflow=function(afFile,glmFile,snpFile,comparisons,cageSet,
         )
       cat(nrow(ps),"pairs...")
       snppairs$Rsq[mask]=mcmapply(function(ii,jj){
-        suppressWarnings(cor(t(snps[ii,-1]),t(snps[jj,-1]),use="p"))^2
+        Rsq=NA
+        try({Rsq=suppressWarnings(cor(t(snps[ii,-1]),t(snps[jj,-1]),use="p"))^2})
+        return(Rsq)
       },ps$snp1.ix,ps$snp2.ix,mc.cores=ncores)
       
       cat("done.\n")
@@ -374,42 +376,107 @@ RunFullWorkflow=function(afFile,glmFile,snpFile,comparisons,cageSet,
     freqBins=assign_SNPs_freqBins(sites,snpFile)
     shiftGroups=c("significant parallel shifts","significant anti-parallel shifts","shifts not significant")
     
-    get_pval=function(set1,set2,sigMetric){
-      if(sigMetric=="ttest"){return(t.test(set1,set2)$p.value)}
-      if(sigMetric=="ranksum"){return(wilcox.test(set1,set2)$p.value)}
+    get_pval=function(set1,set2,sigMetric,paired){
+      if(sigMetric=="ttest"){return(t.test(set1,set2,paired=paired)$p.value)}
+      if(sigMetric=="ranksum"){return(wilcox.test(set1,set2,paired=paired)$p.value)}
     }
     
     shifts.loo=do.call(rbind,lapply(1:length(results.loo),function(dropCage){
+      
+      ## get af shifts for training cages and left-out cage
       shifts.train=get_af_shifts(afmat,samps,cage_set=cages[-dropCage],comparisons)
       shifts.test=get_af_shifts(afmat,samps,cage_set=dropCage,comparisons)
+      
+      ## find identified sig sites [ix,comparison] 
       sigIX=results.loo[[dropCage]][["sigSites"]] %>% filter(sigLevel>1) %>% 
         dplyr::select(ix,comparison) %>% mutate(comparison=as.numeric(comparison)) %>% as.matrix
+      
+      ## label list of site freqs as sig or not
       shifts=freqBins %>% mutate(ix=1:nrow(freqBins),sig=ifelse(ix%in% sigIX[,1],"sig","matched")) %>%
+        ## for each chrom and freqbin, give a random index to each sig site and each non-sig site
         group_by(chrom,freq,sig) %>% mutate(rr=sample(rank(pos))) %>%
         ungroup() %>% dplyr::select(-pos) %>%
+        ## spread list so sites with the same rr index are lined up
         spread(key="sig",val="ix") %>% 
-        filter(!is.na(sig)) %>% merge(sigIX,by.x="sig",by.y="ix",all=T) %>% 
+        ## get rid of sites without a matching sig site
+        filter(!is.na(sig)) %>% 
+        ## add back info for the sig site
+        merge(sigIX,by.x="sig",by.y="ix",all=T) %>% 
+        ## turn back into a list, sig sites first, then matched
         gather(key="site",val="ix",sig,matched) %>%
+        mutate(rr=paste0(rr,".",chrom,".",freq)) %>%
         mutate(trainDir=c(-1,1)[1+as.numeric(shifts.train[cbind(ix,comparison)]>0)]) 
       
-      shifts<-cbind(shifts %>% dplyr::select(chrom,comparison,site),
+      shifts<-cbind(shifts %>% dplyr::select(chrom,comparison,site,rr),
                     shifts.test[shifts$ix,] %>% mutate_all(function(x){x*shifts$trainDir}) 
-                    )  %>% gather(key="c.meas",val="shift",-chrom,-comparison,-site) %>% 
+                    )  %>% gather(key="c.meas",val="shift",-chrom,-comparison,-site,-rr) %>% 
         mutate(c.meas=match(chop(c.meas,"\\.",2),comparisons)) %>%
         mutate(dropCage=dropCage)   
-  })) %>% group_by(comparison,dropCage,c.meas) %>% 
-      mutate(pval=get_pval(shift[site=="matched"],shift[site=="sig"],'ttest'),
-             pval.nonpar=get_pval(shift[site=="matched"],shift[site=="sig"],'ranksum')) %>% 
-      group_by(comparison,site,c.meas,dropCage) %>% summarise(nSites=n(),nPos=sum(shift>0),shift=median(shift),pval=unique(pval),pval.nonpar=unique(pval.nonpar)) %>%
+  }))
+    
+    medians.loo = shifts.loo %>% arrange(rr) %>% group_by(comparison,dropCage,c.meas) %>% 
+      mutate(pval.par.paired=get_pval(shift[site=="matched"],shift[site=="sig"],'ttest',TRUE),
+             pval.nonpar.paired=get_pval(shift[site=="matched"],shift[site=="sig"],'ranksum',TRUE),
+             pval.par.npaired=get_pval(shift[site=="matched"],shift[site=="sig"],'ttest',FALSE),
+             pval.nonpar.npaired=get_pval(shift[site=="matched"],shift[site=="sig"],'ranksum',FALSE)) %>% 
+      group_by(comparison,site,c.meas,dropCage) %>% 
+      summarise(nSites=n(),nPos=sum(shift>0),shift=median(shift),
+                pval.par.paired=unique(pval.par.paired),pval.nonpar.paired=unique(pval.nonpar.paired),
+                pval.par.npaired=unique(pval.par.npaired),pval.nonpar.npaired=unique(pval.nonpar.npaired)) %>%
       ungroup() %>%
-      mutate(shiftGroup=ifelse(p.adjust(pval,method = "BH")<.05,ifelse(shift>0,shiftGroups[1],shiftGroups[2]),shiftGroups[3])) %>%
+      mutate(shiftGroup=ifelse(p.adjust(pval.par.npaired,method = "BH")<.05,ifelse(shift>0,shiftGroups[1],shiftGroups[2]),shiftGroups[3])) %>%
       mutate(
         tpt.ID=factor(paste0("SNPs ID'd in 9 cages\nfrom",gsub("Timepoint","",timesegs[comparison])),
                       paste0("SNPs ID'd in 9 cages\nfrom",gsub("Timepoint","",timesegs))),
         tpt.measured=factor(gsub("Timepoint","",paste0("shifts\n",timesegs[c.meas])),
                             gsub("Timepoint","",paste0("shifts\n",timesegs)))
       )
-    return(shifts.loo)
+    return(list(shifts.loo,medians.loo))
   }
  ########################
+ 
+ ########################
+ get_matched_pairs=function(clusterPairs,snpFile,distBinSize=25,maxPairsPerCluster=NULL,nCores=20){
+   ####################
+   load("Rdata/glm.Ecages.Rdata");sites=df.glm %>% dplyr::select(chrom,pos); rm(df.glm)
+   freqBins=assign_SNPs_freqBins(sites,snpFile) %>% mutate(ix=1:nrow(freqBins))
+   clusterPairs <- clusterPairs %>% merge(freqBins,by.x=c("chrom","snp1.pos"),by.y=c("chrom","pos")) %>% rename(snp1.freq=freq,snp1.ix=ix) %>%
+     merge(freqBins,by.x=c("chrom","snp2.pos"),by.y=c("chrom","pos")) %>% rename(snp2.freq=freq,snp2.ix=ix) 
+   
+   if(!is.null(maxPairsPerCluster)){
+     clusterPairs <- clusterPairs %>% group_by(snp1.cl,snp2.cl) %>% mutate(rr=sample(order(snpDist))) %>% filter(rr<maxPairsPerCluster) %>% ungroup()
+   }
+   # for each pair of SNPs in clusterPairs (either pairs in the same cluster or pairs in different clusters)
+   freqBins$sig=(freqBins$ix %in% clusterPairs$snp1.ix) | (freqBins$ix %in% clusterPairs$snp2.ix)
+   
+   system.time({candidatePairs=do.call(rbind,mclapply(1:nrow(clusterPairs),function(pp){
+     #        cat(pp,"..");flush.console();Sys.sleep(1)
+     #candidatePairs=do.call(rbind,mclapply(1:500,function(pp){
+     ## get indexes of SNPs in frequency bins that match SNP1 and SNP2 but are not in clusters
+     ix1=which(freqBins$chrom==clusterPairs$chrom[pp] & freqBins$freq==clusterPairs$snp1.freq[pp] & !freqBins$sig);
+     ix2=which(freqBins$chrom==clusterPairs$chrom[pp] & freqBins$freq==clusterPairs$snp2.freq[pp] & !freqBins$sig);
+     ## get the target distance 
+     dB=abs(clusterPairs$snp1.pos[pp]-clusterPairs$snp2.pos[pp]);
+     
+     ## try to find a matched reference pair
+     snp2.ix=NULL;
+     while(length(snp2.ix)==0){
+       ## pick a random SNP with freq matched to SNP1
+       snp1.ix=sample(ix1,1)
+       pos.1=freqBins$pos[snp1.ix];
+       ## get the distance from that SNP to all SNPs with freq matched to SNP2
+       dist.2=abs(freqBins$pos[ix2]-pos.1)
+       ## pick pair with closest dist to target distance
+       best=min(abs(dist.2-dB))
+       if(best<=distBinSize){
+         snp2.ix=ix2[abs(dist.2-dB)==best][1]
+       }
+       
+     };
+     
+     ## return dataframe with found SNP sets
+     data.frame(pp,snp1.ix,snp2.ix,pos.1) %>% mutate(pos.2=freqBins$pos[snp2.ix])
+   },mc.cores = nCores))})
+ }
+ #########################
   

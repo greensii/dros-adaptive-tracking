@@ -104,7 +104,7 @@ make_loo_plot=function(medians.loo,ylims=c(-.075,.075)){
 make_manhattan=function(df.sig,df.clust=NULL,comparisonLabels=NULL,sigLevelLabels=NULL,sigColors=NULL,
                         show_cluster_bars=FALSE,show_cluster_points=TRUE,show_cluster_nums=FALSE,
                         ylims=c(-3,11)){
-########################
+  ########################
   df.sig <- df.sig %>% mutate(sigLabel=factor(sigLevelLabels[sigLevel],sigLevelLabels),compLabel=factor(comparisonLabels[comparison],comparisonLabels))
   df.clust <-df.clust %>% group_by(comparison,chrom) %>% mutate(ct=n()) %>% mutate(clnum=rank(startPos)) %>% ungroup() %>%
     mutate(clfill=factor(clnum%%2)) %>% gather(key=posType,val=pos,startPos,endPos,bestSNP.pos) %>% 
@@ -118,9 +118,11 @@ make_manhattan=function(df.sig,df.clust=NULL,comparisonLabels=NULL,sigLevelLabel
   
   ## add bars for clusters
   if(show_cluster_bars){
-    gg<-gg+geom_ribbon(data =  df.clust, aes(group=cl,fill=clfill),ymin=0,ymax=Inf,na.rm=TRUE,alpha=.5) + 
+    gg<-gg+geom_ribbon(data =  df.clust, aes(group=cl,fill=chrom,alpha=clfill),ymin=0,ymax=Inf,na.rm=TRUE) + 
       # scale_fill_gradientn(colours=brewer.pal(2,"Spectral"))
-      scale_fill_viridis_d(option="cvidis",begin=.4,end = .7)  +
+      #scale_fill_viridis_d(option="cvidis",begin=.4,end = .7)  +
+      scale_fill_brewer(palette = "Spectral") + 
+      scale_alpha_manual(values = c(.3,.6))+
       guides(fill=FALSE) 
   }
   
@@ -131,14 +133,15 @@ make_manhattan=function(df.sig,df.clust=NULL,comparisonLabels=NULL,sigLevelLabel
   
   ## add labels to clusters
   if(show_cluster_nums){
-    gg<-gg+geom_text_repel(data = df.clust %>% filter(posType=="bestSNP.pos") ,
-                           aes(y=0,label=clnum),size=3,alpha=1) 
+    gg<-gg+geom_text_repel(data = df.clust %>% filter(posType=="bestSNP.pos") %>%
+                             mutate(linked_cluster=ifelse(duplicated(linkage_group)|duplicated(linkage_group,fromLast = TRUE),"linked cluster","independent cluster")),
+                           aes(y=0,label=cl_label,color=linked_cluster),size=3,alpha=1) 
   }
   
   ## points for cluster markers
   if(show_cluster_points){
     gg<-gg+ geom_point(data = df.clust %>% filter(posType=="bestSNP.pos"),
-                 shape=19,y=0,color="darkslategray",size=.4) 
+                       shape=19,y=0,color="darkslategray",size=.4) 
     
     
   }
@@ -148,13 +151,14 @@ make_manhattan=function(df.sig,df.clust=NULL,comparisonLabels=NULL,sigLevelLabel
 
 ####################
 make_inversion_lines=function(invFile,results){
-###################
-    inversions=fread(invFile) %>% group_by(chrom) %>% mutate(rr=rank(start)) %>% ungroup() 
+  ###################
+  inversions=fread(invFile) %>% group_by(chrom) %>% mutate(rr=rank(start)) %>% ungroup() 
   inv.lines= inversions %>% gather(key=posType,val=pos,start,stop) 
-  inv.labs=inv.lines %>% group_by(chrom,rr,inversion)%>% summarise(pos=max(pos)+2400000,dummy=0)%>%ungroup()
+  #inv.labs=inv.lines %>% group_by(chrom,rr,inversion)%>% summarise(pos=max(pos)+2400000,dummy=0)%>%ungroup()
+  inv.labs=inv.lines %>% spread(key=posType,val=pos) %>% mutate(pos=ifelse(rr%%2>0,stop,start),dummy=0)
   ggInv=results$sigSites %>% ggplot(aes(x=pos/1000000)) + geom_point(y=0,shape=NA) + 
     geom_line(data=inv.lines,aes(y=-1*rr,group=inversion)) + 
-    geom_text(data=inv.labs,aes(y=-1*rr,label=inversion),size=2.5) + 
+    geom_text_repel(data=inv.labs,aes(y=-1*rr,label=inversion),min.segment.length=0,point.padding=0,nudge_x=0,nudge_y=.5,size=2.5) + 
     facet_grid(dummy~chrom,scales="free_x",switch="y") + theme_minimal() + 
     lims(y=c(-5,0))+ 
     theme(panel.grid = element_blank(),axis.line=element_blank(),axis.ticks = element_blank(),
@@ -163,6 +167,7 @@ make_inversion_lines=function(invFile,results){
     guides(color=FALSE) + labs(x="",y="")
   return(ggInv)
 }
+
 #####################
 
 ########################

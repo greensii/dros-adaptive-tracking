@@ -58,8 +58,8 @@ results.loo=lapply(cages,function(dropCage){
   loofile=paste0(looDir,"/glm.Ecages",paste0(sort(as.character(cages)[-dropCage]),collapse=""),".Rdata")
   RunFullWorkflow(HAFsFile,glmFile,snpFile,comparisons,cages,fdrThreshs,esThreshs,windowSize,windowShift,maxClusterGap,maxSNPpairDist,linkageThresh,maxthreads)
 })
-shifts.loo=get_loo_shifts(results.loo,afFile,snpFile,comparisons)
-save(results.loo,shifts.loo,file="Rdata/results_loo.orch14.Rdata")
+list[shifts.loo,medians.loo]<-get_loo_shifts(results.loo,HAFsFile,snpFile,comparisons,timesegs)
+save(results.loo,shifts.loo,medians.loo,file="Rdata/results_loo.orch14.Rdata")
 
 
 ## backup to teamdrive
