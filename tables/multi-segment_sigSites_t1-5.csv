@@ -1,0 +1,216 @@
+chrom,pos,direction,ts,cl,sigLevel,region,ID,Name,fullname,EntrezGene,featureList
+2L,7444096,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,2|3,2L:7437506-7445269,FBgn0031914,CG5973,,34023,CDS|exon|gene
+2L,7454228,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,2|3,NA,NA,NA,NA,NA,NA
+2L,7486536,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,2|3,2L:7472505-7495618,FBgn0260486,CG42533,,34030,gene|exon_junction|intron
+2L,7510032,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,2|3,2L:7497805-7576604,FBgn0085403,Rapgap1,Rapgap1,34032,gene|exon_junction|intron
+2L,7521458,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,2|3,2L:7497805-7576604,FBgn0085403,Rapgap1,Rapgap1,34032,gene|exon_junction|intron
+2L,7545647,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,2|3,2L:7497805-7576604,FBgn0085403,Rapgap1,Rapgap1,34032,gene|exon_junction|intron
+2L,7545658,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,2|3,2L:7497805-7576604,FBgn0085403,Rapgap1,Rapgap1,34032,gene|exon_junction|intron
+2L,7546166,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,2|3,2L:7497805-7576604,FBgn0085403,Rapgap1,Rapgap1,34032,gene|exon_junction|intron
+2L,7617790,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,2|3,NA,NA,NA,NA,NA,NA
+2L,7620580,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,2|3,NA,NA,NA,NA,NA,NA
+2L,7625990,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,2|3,NA,NA,NA,NA,NA,NA
+2L,7703601,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,2|3,2L:7702807-7710697,FBgn0041181,TepIII,Thiolester containing protein III,34045,gene|exon_junction|intron
+2L,7703605,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,2|3,2L:7702807-7710697,FBgn0041181,TepIII,Thiolester containing protein III,34045,gene|exon_junction|intron
+2L,7746489,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,3|3,NA,NA,NA,NA,NA,NA
+2L,7751375,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,3|3,NA,NA,NA,NA,NA,NA
+2L,7751386,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,2|3,NA,NA,NA,NA,NA,NA
+2L,7751404,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,3|2,NA,NA,NA,NA,NA,NA
+2L,7751405,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,3|2,NA,NA,NA,NA,NA,NA
+2L,7760768,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,3|3,2L:7754191-7765716,FBgn0031944,CG7196,,34057,gene|exon_junction|intron
+2L,7768099,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,2|3,2L:7767649-7775033,FBgn0031945,CG7191,,34058,gene|exon_junction|intron
+2L,7768195,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,3|3,2L:7767649-7775033,FBgn0031945,CG7191,,34058,gene|exon_junction|intron
+2L,7768221,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,3|3,2L:7767649-7775033,FBgn0031945,CG7191,,34058,gene|exon_junction|intron
+2L,7768252,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,3|3,2L:7767649-7775033,FBgn0031945,CG7191,,34058,gene|exon_junction|intron
+2L,7773391,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,2|3,2L:7767649-7775033,FBgn0031945,CG7191,,34058,gene|exon_junction|intron
+2L,7773396,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,3|3,2L:7767649-7775033,FBgn0031945,CG7191,,34058,gene|exon_junction|intron
+2L,7773399,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,2|3,2L:7767649-7775033,FBgn0031945,CG7191,,34058,gene|exon_junction|intron
+2L,7773400,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,3|3,2L:7767649-7775033,FBgn0031945,CG7191,,34058,gene|exon_junction|intron
+2L,7773431,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,2|3,2L:7767649-7775033,FBgn0031945,CG7191,,34058,gene|exon_junction|intron
+2L,7774967,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,3|3,2L:7767649-7775033,FBgn0031945,CG7191,,34058,gene|exon|three_prime_UTR
+2L,7786056,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,3|3,2L:7782857-7786063,FBgn0031947,CG7154,,34062,gene|exon|three_prime_UTR
+2L,7788506,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,3|3,2L:7786157-7790557,FBgn0031948,CG7149,,34063,gene|exon_junction|intron
+2L,7791507,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,2|3,2L:7791406-7795958,FBgn0025687,LKR,lysine ketoglutarate reductase,34064,gene|exon|three_prime_UTR
+2L,7796389,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,3|3,2L:7796308-7799846,FBgn0031950,Herp,Homocysteine-induced endoplasmic reticulum protein,34065,exon|three_prime_UTR|gene
+2L,7902848,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,3|3,2L:7892325-7984158,FBgn0085450,Snoo,Sno oncogene,5740414,gene|exon_junction|intron
+2L,7966252,same,Timepoint 1 --> 2|Timepoint 1 --> 5,168|2160,3|2,2L:7892325-7984158,FBgn0085450,Snoo,Sno oncogene,5740414,gene|exon_junction|intron
+2L,18253034,same,Timepoint 1 --> 2|Timepoint 1 --> 5,341|2418,2|3,2L:18160421-18275770,FBgn0261804,CG42750,,35094,exon_junction|intron|gene
+2R,91622,same,Timepoint 1 --> 2|Timepoint 1 --> 5,394|2584,3|3,NA,NA,NA,NA,NA,NA
+2R,212935,same,Timepoint 1 --> 2|Timepoint 1 --> 5,394|2584,2|3,2R:209942-358573,FBgn0260798,Gprk1,G protein-coupled receptor kinase 1,3355013,exon_junction|intron|gene
+3L,24252167,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1141|3185,3|2,3L:24067329-24292305,FBgn0011288,Snap25,Synapse protein 25,3355084,exon_junction|intron|gene
+3L,24287329,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1141|3185,3|2,3L:24067329-24292305,FBgn0011288,Snap25,Synapse protein 25,3355084,exon_junction|intron|gene
+3L,24295989,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1141|3185,3|2,NA,NA,NA,NA,NA,NA
+3R,17852490,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1645|3463,2|3,3R:17851697-17853198,FBgn0038925,Cchl,Cytochrome c heme lyase,42590,gene|exon|CDS
+3R,17852502,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1645|3463,2|3,3R:17851697-17853198,FBgn0038925,Cchl,Cytochrome c heme lyase,42590,gene|exon|CDS
+3R,17852505,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1645|3463,2|3,3R:17851697-17853198,FBgn0038925,Cchl,Cytochrome c heme lyase,42590,gene|exon|CDS
+3R,27221642,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,3R:27221380-27227735,FBgn0019990,Gcn2,Gcn2,43709,gene|exon|five_prime_UTR
+3R,27221696,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,3R:27221380-27227735,FBgn0019990,Gcn2,Gcn2,43709,gene|exon|five_prime_UTR
+3R,27221704,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,3R:27221380-27227735,FBgn0019990,Gcn2,Gcn2,43709,gene|exon|five_prime_UTR
+3R,27270396,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|2,3R:27230971-27283499,FBgn0261988,Gprk2,G protein-coupled receptor kinase 2,49045,gene|exon_junction|intron
+3R,27315307,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,NA,NA,NA,NA,NA,NA
+3R,27364866,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,NA,NA,NA,NA,NA,NA
+3R,27378900,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,3R:27368754-27391887,FBgn0039852,nyo,nyobe,43716,gene|exon_junction|intron
+3R,27454866,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,NA,NA,NA,NA,NA,NA
+3R,27460641,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,NA,NA,NA,NA,NA,NA
+3R,27473920,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,NA,NA,NA,NA,NA,NA
+3R,27490671,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,NA,NA,NA,NA,NA,NA
+3R,27497172,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,3R:27494957-27503703,FBgn0039863,CG1815,,43730,gene|exon|exon_junction|CDS
+3R,27498061,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,3R:27494957-27503703,FBgn0039863,CG1815,,43730,gene|exon_junction|intron
+3R,27498803,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,3R:27494957-27503703,FBgn0039863,CG1815,,43730,gene|exon_junction|intron
+3R,27499343,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,3R:27494957-27503703,FBgn0039863,CG1815,,43730,gene|exon_junction|CDS|exon
+3R,27499362,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,3R:27494957-27503703,FBgn0039863,CG1815,,43730,gene|exon_junction|intron
+3R,27565232,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,3R:27564190-27569028,FBgn0000557,Ef1alpha100E,Elongation factor 1alpha100E,43736,gene|exon_junction|intron
+3R,27568430,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,3R:27564190-27569028,FBgn0000557,Ef1alpha100E,Elongation factor 1alpha100E,43736,gene|exon|three_prime_UTR
+3R,27570867,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,3R:27570009-27570900,FBgn0039870,CG1896,,43738,gene|exon|three_prime_UTR
+3R,27570906,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,3R:27570894-27571706,FBgn0000150,awd,abnormal wing discs,43739,gene|exon|three_prime_UTR
+3R,27571416,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,3R:27570894-27571706,FBgn0000150,awd,abnormal wing discs,43739,gene|exon_junction|intron
+3R,27571451,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,3R:27570894-27571706,FBgn0000150,awd,abnormal wing discs,43739,gene|exon_junction|intron
+3R,27571609,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,3R:27570894-27571706,FBgn0000150,awd,abnormal wing discs,43739,gene|exon|CDS
+3R,27573123,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,3R:27572167-27573251,FBgn0261479,nero,nero,43740,exon_junction|exon|gene|CDS|intron
+3R,27573123,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,3R:27571766-27576745,FBgn0022349,CG1910,,43741,exon_junction|exon|gene|CDS|intron
+3R,27574608,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,3R:27571766-27576745,FBgn0022349,CG1910,,43741,exon_junction|intron|gene
+3R,27574952,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,3R:27571766-27576745,FBgn0022349,CG1910,,43741,CDS|exon|five_prime_UTR|gene
+3R,27575078,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,3R:27571766-27576745,FBgn0022349,CG1910,,43741,CDS|exon|gene
+3R,27575168,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,3R:27571766-27576745,FBgn0022349,CG1910,,43741,CDS|exon|gene
+3R,27575377,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,3R:27571766-27576745,FBgn0022349,CG1910,,43741,CDS|exon|gene
+3R,27575409,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,3R:27571766-27576745,FBgn0022349,CG1910,,43741,CDS|exon|gene
+3R,27575424,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,3R:27571766-27576745,FBgn0022349,CG1910,,43741,CDS|exon|gene
+3R,27575429,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,3R:27571766-27576745,FBgn0022349,CG1910,,43741,CDS|exon|gene
+3R,27575468,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,3R:27571766-27576745,FBgn0022349,CG1910,,43741,CDS|exon|gene
+3R,27576080,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,3R:27571766-27576745,FBgn0022349,CG1910,,43741,CDS|exon|gene
+3R,27578426,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,3R:27577547-27580413,FBgn0039872,salt,salty dog,43742,gene|CDS|exon
+3R,27580146,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,3R:27577547-27580413,FBgn0039872,salt,salty dog,43742,gene|exon|CDS
+3R,27580346,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,3R:27577547-27580413,FBgn0039872,salt,salty dog,43742,gene|exon|five_prime_UTR
+3R,27580447,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,NA,NA,NA,NA,NA,NA
+3R,27580582,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,NA,NA,NA,NA,NA,NA
+3R,27580601,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,NA,NA,NA,NA,NA,NA
+3R,27580669,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,NA,NA,NA,NA,NA,NA
+3R,27580670,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,NA,NA,NA,NA,NA,NA
+3R,27580687,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,NA,NA,NA,NA,NA,NA
+3R,27580800,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,NA,NA,NA,NA,NA,NA
+3R,27580804,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,NA,NA,NA,NA,NA,NA
+3R,27580814,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,NA,NA,NA,NA,NA,NA
+3R,27580815,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,NA,NA,NA,NA,NA,NA
+3R,27580840,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,NA,NA,NA,NA,NA,NA
+3R,27580882,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,NA,NA,NA,NA,NA,NA
+3R,27580982,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,NA,NA,NA,NA,NA,NA
+3R,27581170,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,3R:27581078-27584359,FBgn0017448,CG2187,,43743,gene|exon|CDS
+3R,27582781,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,3R:27581078-27584359,FBgn0017448,CG2187,,43743,gene|exon_junction|intron
+3R,27583870,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,3R:27581078-27584359,FBgn0017448,CG2187,,43743,gene|exon|five_prime_UTR
+3R,27584676,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,NA,NA,NA,NA,NA,NA
+3R,27584738,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,NA,NA,NA,NA,NA,NA
+3R,27586265,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,3R:27585126-27587299,FBgn0039873,Smvt,Sodium-dependent multivitamin transporter,43744,gene|CDS|exon
+3R,27586984,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,3R:27585126-27587299,FBgn0039873,Smvt,Sodium-dependent multivitamin transporter,43744,gene|exon|CDS
+3R,27625864,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,3R:27625356-27630878,FBgn0250755,CG42233,,43754,gene|exon|three_prime_UTR|transposable_element_insertion_site
+3R,27649165,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,3R:27638797-27670966,FBgn0039883,RhoGAP100F,RhoGAP100F,43758,gene|exon_junction|intron
+3R,27652073,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,3R:27638797-27670966,FBgn0039883,RhoGAP100F,RhoGAP100F,43758,exon_junction|gene|intron
+3R,27657236,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,3R:27638797-27670966,FBgn0039883,RhoGAP100F,RhoGAP100F,43758,gene|exon_junction|intron
+3R,27670522,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,3R:27638797-27670966,FBgn0039883,RhoGAP100F,RhoGAP100F,43758,exon|three_prime_UTR|gene
+3R,27672578,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,NA,NA,NA,NA,NA,NA
+3R,27678292,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,3R:27676704-27819000,FBgn0011224,heph,hephaestus,48571,exon_junction|intron|gene
+3R,27680844,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,3R:27676704-27819000,FBgn0011224,heph,hephaestus,48571,exon_junction|intron|gene
+3R,27697431,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,2|3,3R:27676704-27819000,FBgn0011224,heph,hephaestus,48571,exon_junction|intron|gene
+3R,27702057,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,3R:27676704-27819000,FBgn0011224,heph,hephaestus,48571,exon_junction|intron|gene
+3R,27733665,same,Timepoint 1 --> 2|Timepoint 1 --> 5,1921|3540,3|3,3R:27676704-27819000,FBgn0011224,heph,hephaestus,48571,exon_junction|intron|gene
+2R,19888561,same,Timepoint 1 --> 5|Timepoint 1 --> 5,2961|2968,2|2,2R:19883066-19901384,FBgn0053519,Unc-89,Unc-89,3346201,CDS|exon|gene
+3R,10408767,same,Timepoint 1 --> 5|Timepoint 1 --> 5,3296|3407,2|2,3R:10402941-10433804,FBgn0020299,stumps,stumps,41770,exon_junction|gene|intron
+3R,10408770,same,Timepoint 1 --> 5|Timepoint 1 --> 5,3296|3407,3|3,3R:10402941-10433804,FBgn0020299,stumps,stumps,41770,exon_junction|gene|intron
+X,12657077,same,Timepoint 1 --> 5|Timepoint 1 --> 5,3691|3714,3|3,X:12654911-12657638,FBgn0030420,CG12717,,32229,gene
+X,12657086,same,Timepoint 1 --> 5|Timepoint 1 --> 5,3691|3714,2|2,X:12654911-12657638,FBgn0030420,CG12717,,32229,gene
+2L,22568192,same,Timepoint 2 --> 3|Timepoint 1 --> 5,393|2544,2|3,2L:22515149-22649081,FBgn0058006,CG40006,,3355123,gene|exon_junction|intron
+2L,22872580,same,Timepoint 2 --> 3|Timepoint 1 --> 5,393|2544,3|3,NA,NA,NA,NA,NA,NA
+3L,11589006,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,3|3,NA,NA,NA,NA,NA,NA
+3L,11590823,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,3|2,3L:11590302-11598474,FBgn0036179,CG7368,,39301,gene|exon_junction|intron
+3L,11620092,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,2|2,3L:11619540-11620820,FBgn0036184,PCID2,PCI domain-containing protein 2,39306,exon|gene|CDS
+3L,11620107,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,2|2,3L:11619540-11620820,FBgn0036184,PCID2,PCI domain-containing protein 2,39306,exon|gene|CDS
+3L,11620110,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,2|2,3L:11619540-11620820,FBgn0036184,PCID2,PCI domain-containing protein 2,39306,exon|gene|CDS
+3L,11622256,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,2|3,3L:11621170-11623099,FBgn0042138,CG18815,,59176,gene|CDS|exon
+3L,11623244,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,3|3,NA,NA,NA,NA,NA,NA
+3L,11624484,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,2|3,NA,NA,NA,NA,NA,NA
+3L,11628894,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,3|3,3L:11624495-11636004,FBgn0052091,CG32091,,39307,gene|exon_junction|intron
+3L,11628921,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,3|3,3L:11624495-11636004,FBgn0052091,CG32091,,39307,gene|exon_junction|intron
+3L,11629323,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,2|3,3L:11624495-11636004,FBgn0052091,CG32091,,39307,gene|exon_junction|intron
+3L,11629326,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,2|3,3L:11624495-11636004,FBgn0052091,CG32091,,39307,gene|exon_junction|intron
+3L,11629333,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,2|3,3L:11624495-11636004,FBgn0052091,CG32091,,39307,gene|exon_junction|intron
+3L,11630940,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,3|2,3L:11624495-11636004,FBgn0052091,CG32091,,39307,gene|exon_junction|intron
+3L,11632261,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,3|3,3L:11624495-11636004,FBgn0052091,CG32091,,39307,gene|exon_junction|intron
+3L,11661764,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,3|3,3L:11643600-11673440,FBgn0052085,CG32085,,39311,gene|exon_junction|intron
+3L,11662101,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,2|3,3L:11643600-11673440,FBgn0052085,CG32085,,39311,gene|exon_junction|intron
+3L,11662582,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,3|3,3L:11643600-11673440,FBgn0052085,CG32085,,39311,gene|exon_junction|intron
+3L,11663120,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,3|3,3L:11643600-11673440,FBgn0052085,CG32085,,39311,gene|exon_junction|intron
+3L,11672157,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,3|3,3L:11643600-11673440,FBgn0052085,CG32085,,39311,exon_junction|intron|gene
+3L,11674033,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,2|3,NA,NA,NA,NA,NA,NA
+3L,11677364,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,2|3,3L:11677084-11683255,FBgn0036191,Sug,Sug,39314,exon|five_prime_UTR|gene|exon_junction
+3L,11677765,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,2|3,3L:11677084-11683255,FBgn0036191,Sug,Sug,39314,exon_junction|intron|gene
+3L,11677768,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,3|3,3L:11677084-11683255,FBgn0036191,Sug,Sug,39314,exon_junction|intron|gene
+3L,11678090,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,2|3,3L:11677084-11683255,FBgn0036191,Sug,Sug,39314,exon_junction|intron|gene
+3L,11680708,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,2|3,3L:11677084-11683255,FBgn0036191,Sug,Sug,39314,CDS|exon|exon_junction|intron|gene
+3L,11692577,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,3|3,NA,NA,NA,NA,NA,NA
+3L,11733642,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,2|2,3L:11726689-11759282,FBgn0036202,CG6024,,39325,exon_junction|intron|gene
+3L,11733647,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,2|2,3L:11726689-11759282,FBgn0036202,CG6024,,39325,exon_junction|intron|gene
+3L,11733668,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,2|3,3L:11726689-11759282,FBgn0036202,CG6024,,39325,exon_junction|intron|gene
+3L,11739552,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,2|2,3L:11726689-11759282,FBgn0036202,CG6024,,39325,gene|exon_junction|intron
+3L,11739579,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,2|2,3L:11726689-11759282,FBgn0036202,CG6024,,39325,gene|exon_junction|intron
+3L,11745772,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,2|2,3L:11726689-11759282,FBgn0036202,CG6024,,39325,gene|exon_junction|intron
+3L,11748813,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,2|3,3L:11726689-11759282,FBgn0036202,CG6024,,39325,gene|exon_junction|intron
+3L,11752111,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,2|3,3L:11726689-11759282,FBgn0036202,CG6024,,39325,gene|exon_junction|intron
+3L,11753417,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,2|3,3L:11726689-11759282,FBgn0036202,CG6024,,39325,exon_junction|intron|gene
+3L,11753421,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,2|3,3L:11726689-11759282,FBgn0036202,CG6024,,39325,exon_junction|intron|gene
+3L,11753426,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,2|3,3L:11726689-11759282,FBgn0036202,CG6024,,39325,exon_junction|intron|gene
+3L,11759497,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,3|3,NA,NA,NA,NA,NA,NA
+3L,11765326,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,2|3,NA,NA,NA,NA,NA,NA
+3L,11765876,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,2|3,NA,NA,NA,NA,NA,NA
+3L,11767441,same,Timepoint 2 --> 3|Timepoint 1 --> 5,618|3028,2|2,3L:11767160-11767601,FBgn0036204,Tim13,Tim13,39327,exon|gene|CDS|exon_junction
+3L,13058270,same,Timepoint 2 --> 3|Timepoint 1 --> 5,691|3053,2|3,NA,NA,NA,NA,NA,NA
+3L,13060130,same,Timepoint 2 --> 3|Timepoint 1 --> 5,691|3053,2|3,NA,NA,NA,NA,NA,NA
+3L,13060336,same,Timepoint 2 --> 3|Timepoint 1 --> 5,691|3053,2|3,NA,NA,NA,NA,NA,NA
+3L,13060346,same,Timepoint 2 --> 3|Timepoint 1 --> 5,691|3053,2|3,NA,NA,NA,NA,NA,NA
+3L,13060383,same,Timepoint 2 --> 3|Timepoint 1 --> 5,691|3053,2|3,NA,NA,NA,NA,NA,NA
+3L,13060916,same,Timepoint 2 --> 3|Timepoint 1 --> 5,691|3053,2|3,NA,NA,NA,NA,NA,NA
+3L,13060925,same,Timepoint 2 --> 3|Timepoint 1 --> 5,691|3053,2|3,NA,NA,NA,NA,NA,NA
+3L,13063217,same,Timepoint 2 --> 3|Timepoint 1 --> 5,691|3053,2|3,NA,NA,NA,NA,NA,NA
+3L,13065236,same,Timepoint 2 --> 3|Timepoint 1 --> 5,691|3053,2|3,NA,NA,NA,NA,NA,NA
+3L,13292303,same,Timepoint 2 --> 3|Timepoint 1 --> 5,691|3053,2|3,NA,NA,NA,NA,NA,NA
+3L,17663463,same,Timepoint 2 --> 3|Timepoint 1 --> 5,935|3113,2|3,NA,NA,NA,NA,NA,NA
+3L,18958754,same,Timepoint 2 --> 3|Timepoint 1 --> 5,1022|3163,2|2,NA,NA,NA,NA,NA,NA
+3L,18970056,same,Timepoint 2 --> 3|Timepoint 1 --> 5,1022|3163,2|3,NA,NA,NA,NA,NA,NA
+3R,2111191,same,Timepoint 2 --> 3|Timepoint 1 --> 5,1160|3240,2|2,NA,NA,NA,NA,NA,NA
+3R,3361410,same,Timepoint 2 --> 3|Timepoint 1 --> 5,1201|3240,2|3,3R:3359218-3362247,FBgn0261393,alpha-Est5,alpha-Esterase-5,40905,gene|exon_junction|intron
+3R,3368578,same,Timepoint 2 --> 3|Timepoint 1 --> 5,1201|3240,2|3,3R:3368466-3370952,FBgn0015570,alpha-Est2,alpha-Esterase-2,40908,gene|exon|CDS
+3R,3375601,same,Timepoint 2 --> 3|Timepoint 1 --> 5,1201|3240,2|3,NA,NA,NA,NA,NA,NA
+3R,363501,same,Timepoint 3 --> 4|Timepoint 1 --> 5,1143|3229,3|3,3R:319126-383789,FBgn0085386,CG34357,,5740349,gene|exon_junction|intron
+3R,503592,same,Timepoint 3 --> 4|Timepoint 1 --> 5,1143|3229,3|3,3R:485305-530979,FBgn0051531,CG31531,,40583,exon_junction|intron|gene
+3R,2866008,same,Timepoint 3 --> 4|Timepoint 1 --> 5,1143|3240,2|2,NA,NA,NA,NA,NA,NA
+3R,8697510,same,Timepoint 3 --> 4|Timepoint 1 --> 5,1265|3296,2|2,NA,NA,NA,NA,NA,NA
+3R,9043065,same,Timepoint 3 --> 4|Timepoint 1 --> 5,1265|3296,2|3,NA,NA,NA,NA,NA,NA
+3R,9380947,same,Timepoint 3 --> 4|Timepoint 1 --> 5,1265|3296,3|3,NA,NA,NA,NA,NA,NA
+2L,3732508,same,Timepoint 4 --> 5|Timepoint 1 --> 5,75|2123,3|3,NA,NA,NA,NA,NA,NA
+2L,16343780,same,Timepoint 4 --> 5|Timepoint 1 --> 5,315|2410,2|3,2L:16342428-16352600,FBgn0000307,chif,chiffon,34974,exon_junction|intron|exon|three_prime_UTR|gene
+2L,16343780,same,Timepoint 4 --> 5|Timepoint 1 --> 5,315|2410,2|3,2L:16342423-16352093,FBgn0087041,CG42231,,7354432,exon_junction|intron|exon|three_prime_UTR|gene
+2R,14565563,same,Timepoint 4 --> 5|Timepoint 1 --> 5,423|2880,3|3,NA,NA,NA,NA,NA,NA
+2R,14617445,same,Timepoint 4 --> 5|Timepoint 1 --> 5,423|2880,2|3,2R:14615328-14617763,FBgn0034381,List,Lithium-inducible SLC6 transporter,37157,gene|exon|CDS|exon_junction|intron
+2R,14617445,same,Timepoint 4 --> 5|Timepoint 1 --> 5,423|2880,2|3,2R:14605634-14642026,FBgn0053147,Hs3st-A,Heparan sulfate 3-O sulfotransferase-A,37161,gene|exon|CDS|exon_junction|intron
+2R,14744893,same,Timepoint 4 --> 5|Timepoint 1 --> 5,423|2880,2|3,2R:14743272-14745443,FBgn0034405,Jheh2,Juvenile hormone epoxide hydrolase 2,37181,gene|CDS|exon
+2R,14744980,same,Timepoint 4 --> 5|Timepoint 1 --> 5,423|2880,2|3,2R:14743272-14745443,FBgn0034405,Jheh2,Juvenile hormone epoxide hydrolase 2,37181,gene|exon_junction|intron
+2R,14745024,same,Timepoint 4 --> 5|Timepoint 1 --> 5,423|2880,2|3,2R:14743272-14745443,FBgn0034405,Jheh2,Juvenile hormone epoxide hydrolase 2,37181,gene|exon_junction|intron
+2R,14745054,same,Timepoint 4 --> 5|Timepoint 1 --> 5,423|2880,2|3,2R:14743272-14745443,FBgn0034405,Jheh2,Juvenile hormone epoxide hydrolase 2,37181,gene|exon_junction|intron
+2R,14745144,same,Timepoint 4 --> 5|Timepoint 1 --> 5,423|2880,2|3,2R:14743272-14745443,FBgn0034405,Jheh2,Juvenile hormone epoxide hydrolase 2,37181,gene|exon_junction|intron
+2R,15830795,same,Timepoint 4 --> 5|Timepoint 1 --> 5,423|2937,2|3,NA,NA,NA,NA,NA,NA
+3L,13886486,same,Timepoint 4 --> 5|Timepoint 1 --> 5,699|3072,2|2,3L:13865829-13895161,FBgn0085429,CG34400,,39533,gene|exon_junction|intron
+3L,18959348,same,Timepoint 4 --> 5|Timepoint 1 --> 5,1017|3163,3|3,NA,NA,NA,NA,NA,NA
+3R,11691632,same,Timepoint 4 --> 5|Timepoint 1 --> 5,1429|3415,3|3,3R:11683801-11695774,FBgn0051183,CG31183,,41927,gene|exon_junction|intron
+3R,23720514,same,Timepoint 4 --> 5|Timepoint 1 --> 5,1747|3513,2|3,3R:23593688-23731565,FBgn0085382,CG34353,,5740590,gene|exon_junction|intron
+3R,23977291,same,Timepoint 4 --> 5|Timepoint 1 --> 5,1747|3513,3|3,3R:23972546-24064952,FBgn0085383,CG34354,,5740528,gene|exon_junction|intron
+3R,23980186,same,Timepoint 4 --> 5|Timepoint 1 --> 5,1747|3513,3|3,3R:23972546-24064952,FBgn0085383,CG34354,,5740528,gene|exon_junction|intron
+3R,23980205,same,Timepoint 4 --> 5|Timepoint 1 --> 5,1747|3513,3|3,3R:23972546-24064952,FBgn0085383,CG34354,,5740528,gene|exon_junction|intron
+3R,23981137,same,Timepoint 4 --> 5|Timepoint 1 --> 5,1747|3513,3|3,3R:23972546-24064952,FBgn0085383,CG34354,,5740528,gene|exon_junction|intron
+3R,25927487,same,Timepoint 4 --> 5|Timepoint 1 --> 5,1858|3540,2|3,3R:25884037-25947101,FBgn0015542,sima,similar,43580,exon_junction|gene|intron
+3R,25927533,same,Timepoint 4 --> 5|Timepoint 1 --> 5,1858|3540,3|3,3R:25884037-25947101,FBgn0015542,sima,similar,43580,exon_junction|gene|intron
+3R,25927604,same,Timepoint 4 --> 5|Timepoint 1 --> 5,1858|3540,2|3,3R:25884037-25947101,FBgn0015542,sima,similar,43580,exon_junction|gene|intron
+3R,25927615,same,Timepoint 4 --> 5|Timepoint 1 --> 5,1858|3540,2|3,3R:25884037-25947101,FBgn0015542,sima,similar,43580,exon_junction|gene|intron
+3R,25984680,same,Timepoint 4 --> 5|Timepoint 1 --> 5,1858|3540,2|3,3R:25978744-25986195,FBgn0039749,CG11498,,43585,gene|exon_junction|intron
+X,2568539,same,Timepoint 4 --> 5|Timepoint 1 --> 5,1944|3628,3|3,X:2527983-2571879,FBgn0003371,sgg,shaggy,31248,gene
+X,2568540,same,Timepoint 4 --> 5|Timepoint 1 --> 5,1944|3628,3|3,X:2527983-2571879,FBgn0003371,sgg,shaggy,31248,gene
+X,2751820,same,Timepoint 4 --> 5|Timepoint 1 --> 5,1944|3628,3|3,NA,NA,NA,NA,NA,NA
+X,6783159,same,Timepoint 4 --> 5|Timepoint 1 --> 5,2020|3660,2|3,NA,NA,NA,NA,NA,NA
+X,13616100,same,Timepoint 4 --> 5|Timepoint 1 --> 5,2047|3719,2|3,NA,NA,NA,NA,NA,NA
