@@ -405,6 +405,3 @@ get_inversionMarker_linkage=function(df.sig,inv.alleles,snpFile){
     # summarise(inv.Rsq=max(Rsq),inv.pos=ipos[inv.Rsq==Rsq][1],inv.name=iname[inv.Rsq==Rsq][1],inv.freq=ifreq[inv.Rsq==Rsq][1])
   })),by=c("chrom","pos"))
 }
-
-
-
