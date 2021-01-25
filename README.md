@@ -11,7 +11,7 @@ _Seth M. Rudman, Subhash Rajpurohit, Sharon Greenblum, Ozan Kiratli, Martin M. T
 + 10 replicate cages were allowed to freely evolve.
   + Each replicate population was allowed to evolve for ~15 generations
   + At 5 timepoints between June and November 100 female individuals from each cage were sampled for pooled sequencing 
-+ Whole genome pool-seq was performed at ~5x coverage per sample, and then haplotype inference was used to calculate allele frequencies.
++ Whole genome pool-seq was performed at ~5x coverage per sample, and then haplotype inference was used to calculate allele frequencies (Tilk et al, 2019).
 
 #### Summary of results:
 + Rapid adaptation is strong enough to prompt detectable genomic shifts within a population on monthly timescales

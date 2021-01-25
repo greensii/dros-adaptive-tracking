@@ -11,6 +11,10 @@
 #  calc_Rsq_for_snp_pairs
 #  merge_linked_clusters
 
+## additional functions:
+#  get_loo_shifts
+#  get_matched_pairs
+#  get_af_trajectories
 
   
 ####################### 
