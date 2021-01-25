@@ -30,18 +30,18 @@ _Seth M. Rudman, Subhash Rajpurohit, Sharon Greenblum, Ozan Kiratli, Martin M. T
   + SNPs in the regions that do span multiple time segments often switch direction
   
 #### Workflow
-workflow steps performed by the functions in this repo:
-+  _get_glm_pvals_: fit allele freqs at each SNP to GLM and extract p-values for significance of sampling timepoint
+workflow steps performed by the functions in this repo:  
++  _get_glm_pvals_: fit allele freqs at each SNP to GLM and extract p-values for significance of sampling timepoint  
 +  _get_af_shifts_: calculate average allele frequency shift for each cage over each time interval
-+  _get_sig_sites_: identify sites that meet FDR and effect size thresholds
-+  _score_wins_: score sliding genomic windows for enrichment for significantlhy parallel sites
-+  _get_win_fdr_: compare distribution of window scores to empirical null, identify significantly enriched windows
-+  _cluster_wins_: merge overlapping enriched windows 
-+  _associate_snps_to_clusters_: identify the significant SNPs in each cluster
-+  _find_snp_pairs_: create pairs of significant SNPs, find matched control pairs
-+  _calc_Rsq_for_snp_pairs_: calculate linkage (squared correlation coef) for selected SNP pairs
-+  _merge_linked_clusters_: merge consecutive clusters with high SNP-pair linkage 
-
++  _get_sig_sites_: identify sites that meet FDR and effect size thresholds  
++  _score_wins_: score sliding genomic windows for enrichment for significantlhy parallel sites  
++  _get_win_fdr_: compare distribution of window scores to empirical null, identify significantly enriched windows  
++  _cluster_wins_: merge overlapping enriched windows  
++  _associate_snps_to_clusters_: identify the significant SNPs in each cluster  
++  _find_snp_pairs_: create pairs of significant SNPs, find matched control pairs  
++  _calc_Rsq_for_snp_pairs_: calculate linkage (squared correlation coef) for selected SNP pairs  
++  _merge_linked_clusters_: merge consecutive clusters with high SNP-pair linkage  
+  
 Note that this same workflow was performed using all 10 cages, and also in a 10-fold leave-one-cage-out cross-validation
 
   
