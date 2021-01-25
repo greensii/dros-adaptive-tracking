@@ -1,42 +1,12 @@
 # MAIN
 
-## locations
-#localDir="~/Documents/cage_data/orchard_2014";
+## setup - local
+localDir="~/Documents/cage_data/orchard_2014";
+scriptsDir="~/Documents/GitHub//dros-adaptive-tracking"
+
+## setup - cluster
 localDir="/scratch/users/greensi/orchard_2014"
-setwd(localDir)
-
-teamdriveDir="teamdrive:Dmel_cageExperiments_SGreenblum/2014-orchard-dmel"
-#scriptsDir="~/Documents/GitHub//dros-adaptive-tracking"
 scriptsDir="~/scripts/GitHub/dros-adaptive-tracking"
-looDir="Rdata//glm_loo"
-
-## files
-snpFile="snps/inbredv2_withHets.subset_orch14.CHROM.snpTable.numeric"
-fstFile="Rdata/fst_perChrom.orch14_Ecages_baseline.Rdata"
-HAFsFile="Rdata//HAFs.orch14_Ecages.Rdata"
-baselineFile="Rdata/ds5xHAFs.orch14_baseline.Rdata"
-glmFile="Rdata//glm.Ecages.Rdata"
-
-
-## globals
-chroms=c("2L","2R","3L","3R","X")
-cages=1:10
-comparisons=c("2_1","3_2","4_3","5_4","5_1")
-timesegs=c("Timepoint 1 --> 2", "Timepoint 2 --> 3", "Timepoint 3 --> 4","Timepoint 4 --> 5","Timepoint 1 --> 5")
-colorScheme=c("BH-FDR<.2"="lightgray",
-              "BH-FDR<.05,\neffect-size>2%"="coral",
-              "BH-FDR<.01,\neffect-size>2%"="red")
-
-## parameters
-fdrThreshs=c(.2,.05,.01) ## maximum fdr-corrected pvalue for difference in allele frequency between treatments for a site to be considered significantly diverged
-esThreshs=c(0,0.02,0.02) ## minimum mean allele frequency difference between treatments for a site to be considered significantly diverged (combined with p-value)
-windowSize=500
-windowShift=100
-maxClusterGap=100
-linkageThresh=0.03
-maxSNPpairDist=3000000
-poolSize=100
-maxthreads=20 ## max number of parallel processes to run (actual num will not exceed available cores detected below)
 
 ## FUNCTIONS
 setwd(scriptsDir)
@@ -47,20 +17,37 @@ source("helper_functions.R")
 source("load_packages.R")
 setwd(localDir)
 
-### RUN WORKFLOW
+## PARAMETERS
+source(configFile)
 
-## for all cages together
-results=RunFullWorkflow(HAFsFile,glmFile,snpFile,comparisons,cages,fdrThreshs,esThreshs,windowSize,windowShift,maxClusterGap,maxSNPpairDist,linkageThresh,maxthreads)
-save(results,file="Rdata/results.orch14.Rdata")
+## globals
+chroms=c("2L","2R","3L","3R","X")
+cages=1:10
+comparisons=c("2_1","3_2","4_3","5_4","5_1")
+timesegs=c("Timepoint 1 --> 2", "Timepoint 2 --> 3", "Timepoint 3 --> 4","Timepoint 4 --> 5","Timepoint 1 --> 5")
+colorScheme=c("lightgray","coral","red")
+names(colorScheme)= c(paste0("BH-FDR<",fdrThreshs[1]),
+                      paste0("BH-FDR<",fdrThreshs[2],",\neffect-size>",esThreshs[2]*100,"%"),
+                      paste0("BH-FDR<",fdrThreshs[3],",\neffect-size>",esThreshs[3]*100,"%")
+)
+
+### RUN WORKFLOW
 
 ## for each leave-one-cage-out round
 results.loo=lapply(cages,function(dropCage){
-  loofile=paste0(looDir,"/glm.Ecages",paste0(sort(as.character(cages)[-dropCage]),collapse=""),".Rdata")
+  loofile=paste0("data/glm_loo/glm.Ecages",paste0(sort(as.character(cages)[-dropCage]),collapse=""),".Rdata")
   RunFullWorkflow(HAFsFile,glmFile,snpFile,comparisons,cages,fdrThreshs,esThreshs,windowSize,windowShift,maxClusterGap,maxSNPpairDist,linkageThresh,maxthreads)
 })
 list[shifts.loo,medians.loo]<-get_loo_shifts(results.loo,HAFsFile,snpFile,comparisons,timesegs)
 save(results.loo,shifts.loo,medians.loo,file="Rdata/results_loo.orch14.Rdata")
 
+## for all cages together
+results=RunFullWorkflow(HAFsFile,glmFile,snpFile,comparisons,cages,fdrThreshs,esThreshs,windowSize,windowShift,maxClusterGap,maxSNPpairDist,linkageThresh,maxthreads)
+save(results,file="Rdata/results.orch14.Rdata")
+
+
 
 ## backup to teamdrive
-system(paste0("rclone sync Rdata ",teamdriveDir,"/Rdata"),intern=T)
+backupDir="schmidt-petrov-td:data/orchard_2014"
+system("rclone copy . ",backupDir,"/notebooks --include *.ipynb --max-depth 1",intern=T)
+system(paste0("rclone copy data ",backupDir,"/Rdata --exclude OLD/"),intern=T)
