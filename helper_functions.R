@@ -51,7 +51,7 @@ fun.mat=function (x,myfun) {
 ## Load data
 ############
 
-make_AFdata=function(afDir,afFile,chroms){
+make_AFdata=function(afDir,afFile,chroms,afBaselineFiles){
   df.af=do.call(rbind,lapply(chroms,function(chrom){
     files=system(paste0("ls ",afDir,"/*.",chrom,".afSite"),intern=T) 
     df=Reduce(function(d1,d2){merge(d1,d2,by="pos")},lapply(files,function(x){df=fread(x);
@@ -62,6 +62,26 @@ make_AFdata=function(afDir,afFile,chroms){
   samps=data.frame(sampID=colnames(df.af)[c(-1,-ncol(df.af))],stringsAsFactors=FALSE)
   sites=df.af[,c("chrom","pos"),with=F]
   afmat=as.matrix(df.af[,c(-1,-ncol(df.af)),with=F])
+  
+  ### get baseline raw counts 
+  af.baseline=do.call(rbind,lapply(chroms,function(chrom){
+    fread(system(paste0("ls ",afBaselineFiles," | grep ",chrom),intern=T))
+    }))
+  
+  ## filter out sites with 
+  ###### <1% minor allele freq in all baseline samples or 
+  ###### <1% minor allele freq in all cage samples
+  
+  filtSites <- sites %>% mutate(ix=1:nrow(sites)) %>% 
+    cbind(afmat) %>% 
+    filter(rowSums(select(.,starts_with("E"),starts_with("F"))>.01 & select(.,starts_with("E"),starts_with("F"))<.99)>0) %>%
+    select(c("ix","chrom","pos")) %>%
+    merge(af.baseline ,by=c("chrom","pos")) %>% 
+    filter(rowSums(select(.,starts_with("af"))>.01 & select(.,starts_with("af"))<.99)>0) %>%
+    select(c("ix","chrom","pos")) %>% arrange(ix)
+  
+  sites <- filtSites %>% select(-ix)
+  afmat <- afmat[filtSites$ix,]
   
   save(samps,sites,afmat,file=afFile)
 }
