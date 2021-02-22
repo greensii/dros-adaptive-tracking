@@ -440,10 +440,12 @@ RunFullWorkflow=function(afFile,glmFile,snpFile,comparisons,cageSet,
  ########################
  
  ########################
- get_matched_pairs=function(clusterPairs,snpFile,distBinSize=25,maxPairsPerCluster=NULL,nCores=20){
+ get_matched_pairs=function(clusterPairs,snpFile,freqBins,distBinSize=25,maxPairsPerCluster=NULL,nCores=20){
    ####################
-   load("Rdata/glm.Ecages.Rdata");sites=df.glm %>% dplyr::select(chrom,pos); rm(df.glm)
-   freqBins=assign_SNPs_freqBins(sites,snpFile) %>% mutate(ix=1:nrow(freqBins))
+   #load("Rdata/glm.Ecages.Rdata");
+   #sites=df.glm %>% dplyr::select(chrom,pos); rm(df.glm)
+   #freqBins=assign_SNPs_freqBins(sites,snpFile) %>% mutate(ix=1:nrow(freqBins))
+   freqBins=freqBins %>% mutate(ix=1:nrow(freqBins))
    clusterPairs <- clusterPairs %>% merge(freqBins,by.x=c("chrom","snp1.pos"),by.y=c("chrom","pos")) %>% rename(snp1.freq=freq,snp1.ix=ix) %>%
      merge(freqBins,by.x=c("chrom","snp2.pos"),by.y=c("chrom","pos")) %>% rename(snp2.freq=freq,snp2.ix=ix) 
    
@@ -481,6 +483,7 @@ RunFullWorkflow=function(afFile,glmFile,snpFile,comparisons,cageSet,
      ## return dataframe with found SNP sets
      data.frame(pp,snp1.ix,snp2.ix,pos.1) %>% mutate(pos.2=freqBins$pos[snp2.ix])
    },mc.cores = nCores))})
+   return(candidatePairs)
  }
  #########################
   
