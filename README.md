@@ -44,6 +44,7 @@ workflow steps performed by the functions in this repo:
   
 Note that this same workflow was performed using all 10 cages, and also in a 10-fold leave-one-cage-out cross-validation
 
+#### Input Files:
 Example input files for the first 1,000 sites on chromosome 2L are included in the test_data directory:
 +  _founder_genotypes_1ksites.2L.snpTable.numeric_ is a comma-separated text file specifying the genotype of each founder line (columns) at each segregating site (rows). The first column lists the position of the site, the rest of the columns code for genotypes as follows:
 	+   0 is homozygous reference
