@@ -44,5 +44,16 @@ workflow steps performed by the functions in this repo:
   
 Note that this same workflow was performed using all 10 cages, and also in a 10-fold leave-one-cage-out cross-validation
 
-  
+Example input files for the first 1,000 sites on chromosome 2L are included in the test_data directory:
++  _founder_genotypes_1ksites.2L.snpTable.numeric_ is a comma-separated text file specifying the genotype of each founder line (columns) at each segregating site (rows). The first column lists the position of the site, the rest of the columns code for genotypes as follows:
+	+   0 is homozygous reference
+	+   1 is homozygous alternate
+	+   0.5 is heterozygous (should be very few of these with inbred lines)
+	+   -1 is missing genotype call 
++  _HAFs_1ksites.Rdata_: contains the variables 'sites', 'samps', and 'afmat'
+	+   sites is a dataframe corresponding to the rows of afmat, with columns 'chrom' and 'pos'
+	+   samps is a dataframe corresponding to the columns of afmat, with columns 'sampID', 'tpt', and 'cage'
+	+   afmat is a numeric matrix of haplotype-inferred allele frequencies for each site (rows) in each sample (columns)
++  _glm_1ksites.Rdata_: contains the variable 'df.glm', a dataframe with GLM coefficients and p-values corresponding to the significance of parallelism at each time segment for each tested site
+
 Author: Sharon Greenblum, 2018-2019 Stanford University

@@ -1,10 +1,7 @@
 ## files
-snpFile="data/snps/inbredv2_withHets.subset_orch14.CHROM.snpTable.numeric"
-fstFile="data/fst_perChrom.orch14_Ecages_baseline.Rdata"
-HAFsFile="data/HAFs.orch14_Ecages.Rdata"
-glmFile="data/glm.Ecages.Rdata"
-baselineFile="data/ds5xHAFs.orch14_baseline.Rdata"
-invFile="data/inversions/dmel_inversion_breakpoints.fromCorbittDetigandHartl2012.txt"
+snpFile="test_data/founder_lines_1ksites.2L.snpTable.numeric"
+HAFsFile="test_data/HAFs_1ksites.Rdata"
+glmFile="test_data/glm_1ksites.Rdata"
 
 ## globals
 chroms=c("2L","2R","3L","3R","X")
