@@ -5,3 +5,5 @@ OLD/
 ~$*
 .Rproj.user
 README.html
+*.ipynb_checkpoints*
+simulations/snps*
