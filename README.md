@@ -57,4 +57,5 @@ Example input files for the first 1,000 sites on chromosome 2L are included in t
 	+   afmat is a numeric matrix of haplotype-inferred allele frequencies for each site (rows) in each sample (columns)
 +  _glm_1ksites.Rdata_: contains the variable 'df.glm', a dataframe with GLM coefficients and p-values corresponding to the significance of parallelism at each time segment for each tested site
 
-Author: Sharon Greenblum, 2018-2019 Stanford University
+Author: Sharon Greenblum, 2018-2019 Stanford University  
+To cite, please reference [![DOI](https://zenodo.org/badge/311184324.svg)](https://zenodo.org/badge/latestdoi/311184324)
