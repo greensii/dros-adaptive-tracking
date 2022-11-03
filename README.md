@@ -1,8 +1,7 @@
 # dros-adaptive-tracking
 
-### genomic analyses for experimental evolution of 10 replicate drosophila melanogaster populations adapting to seasonal shifts
-
-_Seth M. Rudman, Subhash Rajpurohit, Sharon Greenblum, Ozan Kiratli, Martin M. Turcotte, Dmitri A. Petrov, Jonathan Levine, Paul Schmidt_
+### Scripts for genomic analyses supporting the following publication:
+Rudman SM, Greenblum SI, Rajpurohit S, Betancourt NJ, Hanna J, Tilk S, Yokoyama T, Petrov DA, Schmidt P. [**Direct observation of adaptive tracking on ecological time scales in Drosophila.**](https://pubmed.ncbi.nlm.nih.gov/35298245/) _Science_. 2022 Mar 18;375(6586):eabj7484. doi: 10.1126/science.abj7484. Epub 2022 Mar 18. PMID: 35298245.
 
 #### Experimental Design:
 + In June of 2014, large replicate cages located in a Pennsylvania orchard were each seeded with 500 male and 500 female D melanogaster from a single reconstructed outbred founder population. 
@@ -25,7 +24,7 @@ _Seth M. Rudman, Subhash Rajpurohit, Sharon Greenblum, Ozan Kiratli, Martin M. T
   + After accounting for linkage, close to 150 independent clusters of linked sites shift significantly 
   + Most clusters are not linked to inversions
 + Selection fluctuates on sub-seasonal timescales
-  + LOO GLM analysis shows direction of allele frequency shift in 10th left-out cage often flips between time segments
+  + Leave-one-out (LOO) GLM analysis shows direction of allele frequency shift in 10th left-out cage often flips between time segments
   + Few regions are enriched for parallelism over multiple time segments
   + SNPs in the regions that do span multiple time segments often switch direction
   
