@@ -1,5 +1,4 @@
 source("load_packages.R")
-
 ### TODO
 ## add way to run on subset of samples (ie only samples from a specific treatment group)? (this is separate from dropping a single sample/cage)
 ## add option to shuffle mainEffect labels within reps
@@ -16,7 +15,7 @@ parse_cl_args=function(args){
   p <- add_argument(p, "--effectiveCov", help="either a single number to be used as the effective coverage for every site/sample, or \na .csv file with column names ['sampID','chrom','ec'] containing an estimate of effective coverage per chrom/sample", default=NA)
   p <- add_argument(p, "--dropRep", help="ID of replicate to drop (when running leave-one-out)", default=NA)
   p <- add_argument(p, "--poolSize", help="number individuals sampled per pool", default=100,type="integer")
-  p <- add_argument(p, "-- mainEffect", help="calculate p-values for all pairwise comparisons of groups in this sample metadata column", default="tpt")
+  p <- add_argument(p, "--mainEffect", help="calculate p-values for all pairwise comparisons of groups in this sample metadata column", default="tpt")
   p <- add_argument(p, "--repName", help="name of the column in the sample metadata table that identifies replicate IDs", default="cage")
   p <- add_argument(p, "--testNsites", help="run GLM on a random subset of N sites", default=NA,type="integer")
   p <- add_argument(p, "--ncores", help="run GLM in parallel using mclapply with this many cores", default=1,type="integer")
@@ -52,6 +51,7 @@ parse_cl_args=function(args){
   if (is.na(as.numeric(args$ncores))) {cat("ncores must be an integer\n***EXITING***\n");quit()}
   if (!is.na(args$testNsites) && is.na(as.numeric(args$testNsites))) {cat("testNsites must be an integer\n***EXITING***\n");quit()}
   if (is.na(args$poolSize)) {cat("poolSize must be an integer\n***EXITING***\n");quit()}
+  if (is.na(args$mainEffect)) {args$mainEffect=NULL}
   
   return(args)
 }
@@ -105,7 +105,9 @@ fit_GLM_one = function(af.site,rd.site,sampData,formulaString,poolSize,cmpAll=NU
   Neff=((poolSize*2*rd.site)-1)/(poolSize*2+rd.site);
   cts=cbind(round(Neff*af.site),round(Neff*(1-af.site)))
   model=glm(as.formula(formulaString),family="quasibinomial",data=sampData) 
-  cp=extract_coef_pval(model,cmpAll,dontReport)      
+  cp=extract_coef_pval(model,cmpAll,dontReport)
+  
+  return(cp)
 }
 fit_GLM_all=function(siteIX,sampIX,samps,model.vars,poolSize,cmpAll=NULL,dontReport=NULL){
   
@@ -121,7 +123,7 @@ fit_GLM_all=function(siteIX,sampIX,samps,model.vars,poolSize,cmpAll=NULL,dontRep
     if(ix%%10000 == 0){cat("working on site ",ix,"\n")}
     
     cp=fit_GLM_one(afmat[ix,sampIX],rd[ix,sampIX],sampData,formulaString,poolSize,cmpAll,dontReport)
-    results=c(cp[,1],cp[,2]);
+    results=c(cp[,1],cp[,2]); 
     names(results)=c(paste0("coef.",row.names(cp)),paste0("p.",row.names(cp)))
     return(results)},mc.cores=args$ncores))
   }
