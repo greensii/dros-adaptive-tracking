@@ -29,8 +29,52 @@ Rudman SM, Greenblum SI, Rajpurohit S, Betancourt NJ, Hanna J, Tilk S, Yokoyama 
   + SNPs in the regions that do span multiple time segments often switch direction
   
 #### Workflow
-workflow steps performed by the functions in this repo:  
-+  _get_glm_pvals_: fit allele freqs at each SNP to GLM and extract p-values for significance of sampling timepoint  
+
+The first step is to calculate GLM p-values for the shift in allele frequency between each pair of timepoints at each biallelic site.
+A separate Rscript (analysis_workflow/calc_GLM.R) is used for this step since it can take hours to run - it is highly recommended to run this step on a multi-core machine and use the _--nCores_ parameter to specify the number of cores to use for parallelization. You can also run each chromosome in a separate job and combine the results afterwards.
+
+```
+usage: calc_GLM.R [--] [--help] [--opts OPTS] [--readDepth READDEPTH]
+       [--effectiveCov EFFECTIVECOV] [--chrom CHROM] [--dropRep
+       DROPREP] [--poolSize POOLSIZE] [--mainEffect MAINEFFECT]
+       [--repName REPNAME] [--testNsites TESTNSITES] [--nCores NCORES]
+       [--saveAs SAVEAS] [--outDir OUTDIR] HAFs
+Calculate GLM coefficients and p-values
+positional arguments:
+  HAFs                .Rdata file containing 3 objects: afmat(matrix),
+                      samples(data.frame), sites(data.frame)
+flags:
+  -h, --help          show this help message and exit
+optional arguments:
+  -x, --opts          RDS file containing argument values
+  -r, --readDepth     .RDS file containing a matrix with same
+                      dimensions as afmat in HAFs, giving the raw read
+                      depth per site/sample
+  -e, --effectiveCov  either a single number to be used as the
+                      effective coverage for every site/sample, or a
+                      .csv file with column names
+                      ['sampID','chrom','ec'] containing an estimate of
+                      effective coverage per chrom/sample
+  -c, --chrom         run GLM only for sites on this chromosome
+  -d, --dropRep       ID of replicate to drop (when running
+                      leave-one-out)
+  -p, --poolSize      number individuals sampled per pool [default:
+                      100]
+  -m, --mainEffect    calculate p-values for all pairwise comparisons
+                      of groups in this sample metadata column
+                      [default: tpt]
+  --repName           name of the column in the sample metadata table
+                      that identifies replicate IDs [default: cage]
+  -t, --testNsites    run GLM on a random subset of N sites
+  -n, --nCores        run GLM in parallel using mclapply with this many
+                      cores [default: 1]
+  -s, --saveAs        format for saving results dataframe: 'RDS',
+                      'Rdata', or 'csv' [default: RDS]
+  -o, --outDir        write all results to this directory; will be
+                      created if it doesnt already exist [default: .]
+```
+
+downstream workflow steps performed by the functions in this repo ( wrapper: main.R ):  
 +  _get_af_shifts_: calculate average allele frequency shift for each cage over each time interval
 +  _get_sig_sites_: identify sites that meet FDR and effect size thresholds  
 +  _score_wins_: score sliding genomic windows for enrichment for significantlhy parallel sites  
@@ -41,7 +85,7 @@ workflow steps performed by the functions in this repo:
 +  _calc_Rsq_for_snp_pairs_: calculate linkage (squared correlation coef) for selected SNP pairs  
 +  _merge_linked_clusters_: merge consecutive clusters with high SNP-pair linkage  
   
-Note that this same workflow was performed using all 10 cages, and also in a 10-fold leave-one-cage-out cross-validation
+Note that this same workflow was performed using all 10 cages, and also in a 10-fold leave-one-cage-out cross-validation (use _--dropRep_ parameter in calc_GLM.R)
 
 #### Input Files:
 Example input files for the first 1,000 sites on chromosome 2L are included in the test_data directory:
@@ -55,6 +99,8 @@ Example input files for the first 1,000 sites on chromosome 2L are included in t
 	+   samps is a dataframe corresponding to the columns of afmat, with columns 'sampID', 'tpt', and 'cage'
 	+   afmat is a numeric matrix of haplotype-inferred allele frequencies for each site (rows) in each sample (columns)
 +  _glm_1ksites.Rdata_: contains the variable 'df.glm', a dataframe with GLM coefficients and p-values corresponding to the significance of parallelism at each time segment for each tested site
++ _effCov.csv_: contains a table of effective coverage values for each chromosome in each sample; column names are: 'sampID','chrom','ec'
+	+ see [Tilk et al., 2019](https://academic.oup.com/g3journal/article/9/12/4159/6028100) for an explanation of effective coverage
 
 Author: Sharon Greenblum, 2018-2019 Stanford University  
 To cite, please reference [![DOI](https://zenodo.org/badge/311184324.svg)](https://zenodo.org/badge/latestdoi/311184324)
