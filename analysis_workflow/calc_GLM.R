@@ -1,7 +1,4 @@
-suppressMessages(library(multcomp))
-suppressMessages(library(data.table))
-suppressMessages(library(dplyr))
-suppressMessages(library(doMC))
+source("load_packages.R")
 
 ### TODO
 ## add way to run on subset of samples (ie only samples from a specific treatment group)? (this is separate from dropping a single sample/cage)
@@ -10,71 +7,53 @@ suppressMessages(library(doMC))
 ## FUNCTIONS
 #################
 parse_cl_args=function(args){
+  # Create a parser
+  p <- arg_parser("Calculate GLM coefficients and p-values")
   
-  ## set defaults
-  HAFs=NULL; outDir="."
-  readDepth=NULL;effectiveCov=NULL; 
-  dropRep=NULL; poolSize=100; 
-  mainEffect="tpt"; repName="cage"
-  testNsites=NULL; ncores=1
-
+  # Add command line arguments
+  p <- add_argument(p, "HAFs", help=".Rdata file containing 3 objects: afmat(matrix), samples(data.frame), sites(data.frame)")
+  p <- add_argument(p, "--readDepth", help=".RDS file containing a matrix with same dimensions as afmat in HAFs, giving the raw read depth per site/sample", default=NA)
+  p <- add_argument(p, "--effectiveCov", help="either a single number to be used as the effective coverage for every site/sample, or \na .csv file with column names ['sampID','chrom','ec'] containing an estimate of effective coverage per chrom/sample", default=NA)
+  p <- add_argument(p, "--dropRep", help="ID of replicate to drop (when running leave-one-out)", default=NA)
+  p <- add_argument(p, "--poolSize", help="number individuals sampled per pool", default=100,type="integer")
+  p <- add_argument(p, "-- mainEffect", help="calculate p-values for all pairwise comparisons of groups in this sample metadata column", default="tpt")
+  p <- add_argument(p, "--repName", help="name of the column in the sample metadata table that identifies replicate IDs", default="cage")
+  p <- add_argument(p, "--testNsites", help="run GLM on a random subset of N sites", default=NA,type="integer")
+  p <- add_argument(p, "--ncores", help="run GLM in parallel using mclapply with this many cores", default=1,type="integer")
+  p <- add_argument(p, "--outDir", help="write all results to this directory; will be created if it doesnt already exist", default=".")
   
-  ## read in cmdline args
-  while(length(args)>0){
-	  switch(args[1],
-		  "--HAFs"={HAFs=args[2];args=args[-(1:2)]},
-		  "--readDepth"={readDepth=args[2];args=args[-(1:2)]},
-		  "--outDir"={outDir=args[2];args=args[-(1:2)]},
-		  "--effectiveCov"={effectiveCov=args[2];args=args[-(1:2)]},
-		  "--mainEffect"={mainEffect=args[2];args=args[-(1:2)]},
-		  "--dropRep"={dropRep=args[2];args=args[-(1:2)]},
-		  "--repName"={repName=args[2];args=args[-(1:2)]},
-		  "--poolSize"={poolSize=as.integer(args[2]);args=args[-(1:2)]},
-		  "--testNsites"={testNsites=as.integer(args[2]);args=args[-(1:2)]},
-		  "--ncores"={ncores=as.integer(args[2]);args=args[-(1:2)]},
-		  {cat("unknown flag: ",args[1],"\n"); quit() }
-	  )
-  }
+  # Parse the command line arguments
+  args <- parse_args(p)
   
   ## check HAFs
-  if(is.null(HAFs) ){cat("HAFs file name must be supplied.\n***EXITING***\n");quit() }
-  if(! file.exists(HAFs) ){cat("HAFs file",HAFs,"does not exist\n***EXITING***\n");quit() }
-  if(! grepl("\\.Rdata$",HAFs) ){cat("HAFs file",HAFs,"must be saved as an .Rdata file\n***EXITING***\n");quit() }
+  if(! file.exists(args$HAFs) ){cat("HAFs file",args$HAFs,"does not exist\n***EXITING***\n");quit() }
+  if(! grepl("\\.Rdata$",args$HAFs) ){cat("HAFs file",args$HAFs,"must be saved as an .Rdata file\n***EXITING***\n");quit() }
   
   ## must supply either readDepth or effectiveCov; effCov can be a file or a single integer
   ## readDepth should be a file containing a matrix with the same dimensions as afmat in HAFs, giving the raw read depth per site/sample
   ## if effectiveCov is a number, it will be used as the effective coverage for every site/sample
   ## if effectiveCov is a file, it should contain an estimate of effective coverage per chrom/sample
-  if(is.null(readDepth)){
-    if(is.null(effectiveCov)){
+  if(is.na(args$readDepth)){
+    if(is.na(args$effectiveCov)){
       cat("either --readDepth or --effectiveCov must be supplied.\n***EXITING***\n");quit()
     } else{
-      if(is.na(as.numeric(effectiveCov)) & !file.exists(effectiveCov)){
+      if(is.na(as.numeric(args$effectiveCov)) & !file.exists(args$effectiveCov)){
         cat("--effectiveCov must either be a single integer or a file\n***EXITING***\n");quit()
       } else {
-        if(!file.exists(effectiveCov)){effectiveCov=as.integer(effectiveCov)}
+        if(!file.exists(args$effectiveCov)){args$effectiveCov=as.integer(args$effectiveCov)}
       }
     }
   } else {
-    if(!file.exists(readDepth)){cat("readDepth file",readDepth,"does not exist\n***EXITING***\n");quit()}
+    if(!file.exists(args$readDepth)){cat("readDepth file",args$readDepth,"does not exist\n***EXITING***\n");quit()}
   }
-  if(!dir.exists(outDir)){cat("outDir",outDir,"does not exist\n***EXITING***\n");quit()}
+  if(!dir.exists(args$outDir)){cat("making outDir",args$outDir,"\n");dir.create(args$outDir,recursive = TRUE)}
   
   ## check ncores,testNsites,poolSize
-  if (is.na(ncores)) {cat("ncores must be an integer\n***EXITING***\n");quit()}
-  if (is.na(testNsites)) {cat("testNsites must be an integer\n***EXITING***\n");quit()}
-  if (is.na(poolSize)) {cat("poolSize must be an integer\n***EXITING***\n");quit()}
+  if (is.na(as.numeric(args$ncores))) {cat("ncores must be an integer\n***EXITING***\n");quit()}
+  if (!is.na(args$testNsites) && is.na(as.numeric(args$testNsites))) {cat("testNsites must be an integer\n***EXITING***\n");quit()}
+  if (is.na(args$poolSize)) {cat("poolSize must be an integer\n***EXITING***\n");quit()}
   
-  return(list("HAFs"=HAFs,
-              "readDepth"=readDepth,
-              "effectiveCov"=effectiveCov,
-              "outDir"=outDir,
-              "dropRep"=dropRep,
-              "testNsites"=testNsites,
-              "poolSize"=poolSize,
-              "mainEffect"=mainEffect,
-              "repName"=repName,
-              "ncores"=ncores))
+  return(args)
 }
 set_up_sampData=function(sampIX,samps,model.vars,cmpAll){
   sampData=samps[sampIX,]%>%dplyr::select(all_of(model.vars));
@@ -84,7 +63,7 @@ set_up_sampData=function(sampIX,samps,model.vars,cmpAll){
   return(sampData)
 } 
 set_up_depthData=function(args,sites,samps){
-  if(!is.null(args$readDepth)){
+  if(!is.na(args$readDepth)){
     cat("using raw read depth for binomial counts\n")
     rd=readRDS(args$readDepth)
     ss=match(samps$sampID,colnames(rd))
@@ -144,20 +123,23 @@ fit_GLM_all=function(siteIX,sampIX,samps,model.vars,poolSize,cmpAll=NULL,dontRep
     cp=fit_GLM_one(afmat[ix,sampIX],rd[ix,sampIX],sampData,formulaString,poolSize,cmpAll,dontReport)
     results=c(cp[,1],cp[,2]);
     names(results)=c(paste0("coef.",row.names(cp)),paste0("p.",row.names(cp)))
-    return(results)}))
+    return(results)},mc.cores=args$ncores))
   }
 
 ##########
 ## MAIN
 args <- suppressWarnings(parse_cl_args(commandArgs(trailingOnly=TRUE)))
 registerDoMC(cores=args$ncores)
+cat("RUNNING calc_GLM.R with the following parameters:\n")
+print(args);
 
 # load af data
+cat("loading HAFs\n")
 load(args$HAFs)  ## should contain sites, samps, afmat
 
 ## get chroms and sites
 chroms=unique(sites$chrom)
-if(!is.null(args$testNsites)){
+if(!is.na(args$testNsites)){
   siteIX=sample(1:nrow(sites),args$testNsites)
 } else {siteIX=1:nrow(sites)}
 
@@ -165,7 +147,7 @@ if(!is.null(args$testNsites)){
 samps$cage=samps[[args$repName]]
 samps$cage=factor(samps$cage)
 cage_set=sort(levels(samps$cage)) 
-if(!is.null(args$dropRep)){cage_set=cage_set[cage_set!=args$dropRep]}
+if(!is.na(args$dropRep)){cage_set=cage_set[cage_set!=args$dropRep]}
 sampIX=which(samps$cage %in% cage_set);
 
 # set up read depth // effective coverage info
@@ -175,13 +157,13 @@ rd=set_up_depthData(args,sites,samps)
 cat("calculating GLM using main effect:",args$mainEffect,
     "\nusing",length(sampIX),"samples from replicates:",cage_set,"\n")
 system.time({
-    df.glm=cbind(sites[siteIX,],fit_GLM_all(siteIX,sampIX,samps,model.vars=c(args$mainEffect,"cage"),
-                                            poolSize=args$poolSize,cmpAll=args$mainEffect,dontReport="cage"))
+    df.glm=cbind(sites[siteIX,],fit_GLM_all(siteIX,sampIX,samps,model.vars=c(args$mainEffect,args$repName),
+                                            poolSize=args$poolSize,cmpAll=args$mainEffect,dontReport=args$repName))
 })
 cat("finished\n")
 
 df.glm <- df.glm %>% mutate_at(vars(starts_with("p.")),function(x){x[x==0]=NA;return(x)}) 
-filename=paste0(args$outDir,"/glm.reps_",ifelse(is.null(args$dropRep),"all",paste0(cage_set,collapse="-")),".Rdata")
+filename=paste0(args$outDir,"/glm.",ifelse(!is.na(args$dropRep),paste0("drop",args$dropRep,"."),""),basename(args$HAFs))
 cat("saving to ",filename,"\n")
 save(df.glm,file=filename)
 
