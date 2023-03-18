@@ -13,12 +13,14 @@ parse_cl_args=function(args){
   p <- add_argument(p, "HAFs", help=".Rdata file containing 3 objects: afmat(matrix), samples(data.frame), sites(data.frame)")
   p <- add_argument(p, "--readDepth", help=".RDS file containing a matrix with same dimensions as afmat in HAFs, giving the raw read depth per site/sample", default=NA)
   p <- add_argument(p, "--effectiveCov", help="either a single number to be used as the effective coverage for every site/sample, or \na .csv file with column names ['sampID','chrom','ec'] containing an estimate of effective coverage per chrom/sample", default=NA)
+  p <- add_argument(p, "--chrom", help="run GLM only for sites on this chromosome", default=NA)
   p <- add_argument(p, "--dropRep", help="ID of replicate to drop (when running leave-one-out)", default=NA)
   p <- add_argument(p, "--poolSize", help="number individuals sampled per pool", default=100,type="integer")
   p <- add_argument(p, "--mainEffect", help="calculate p-values for all pairwise comparisons of groups in this sample metadata column", default="tpt")
   p <- add_argument(p, "--repName", help="name of the column in the sample metadata table that identifies replicate IDs", default="cage")
   p <- add_argument(p, "--testNsites", help="run GLM on a random subset of N sites", default=NA,type="integer")
-  p <- add_argument(p, "--ncores", help="run GLM in parallel using mclapply with this many cores", default=1,type="integer")
+  p <- add_argument(p, "--nCores", help="run GLM in parallel using mclapply with this many cores", default=1,type="integer")
+  p <- add_argument(p, "--saveAs", help="format for saving results dataframe: 'RDS', 'Rdata', or 'csv'", default="RDS")
   p <- add_argument(p, "--outDir", help="write all results to this directory; will be created if it doesnt already exist", default=".")
   
   # Parse the command line arguments
@@ -47,8 +49,8 @@ parse_cl_args=function(args){
   }
   if(!dir.exists(args$outDir)){cat("making outDir",args$outDir,"\n");dir.create(args$outDir,recursive = TRUE)}
   
-  ## check ncores,testNsites,poolSize
-  if (is.na(as.numeric(args$ncores))) {cat("ncores must be an integer\n***EXITING***\n");quit()}
+  ## check nCores,testNsites,poolSize
+  if (is.na(as.numeric(args$nCores))) {cat("nCores must be an integer\n***EXITING***\n");quit()}
   if (!is.na(args$testNsites) && is.na(as.numeric(args$testNsites))) {cat("testNsites must be an integer\n***EXITING***\n");quit()}
   if (is.na(args$poolSize)) {cat("poolSize must be an integer\n***EXITING***\n");quit()}
   if (is.na(args$mainEffect)) {args$mainEffect=NULL}
@@ -125,13 +127,13 @@ fit_GLM_all=function(siteIX,sampIX,samps,model.vars,poolSize,cmpAll=NULL,dontRep
     cp=fit_GLM_one(afmat[ix,sampIX],rd[ix,sampIX],sampData,formulaString,poolSize,cmpAll,dontReport)
     results=c(cp[,1],cp[,2]); 
     names(results)=c(paste0("coef.",row.names(cp)),paste0("p.",row.names(cp)))
-    return(results)},mc.cores=args$ncores))
+    return(results)},mc.cores=args$nCores))
   }
 
 ##########
 ## MAIN
 args <- suppressWarnings(parse_cl_args(commandArgs(trailingOnly=TRUE)))
-registerDoMC(cores=args$ncores)
+registerDoMC(cores=args$nCores)
 cat("RUNNING calc_GLM.R with the following parameters:\n")
 print(args);
 
@@ -141,9 +143,12 @@ load(args$HAFs)  ## should contain sites, samps, afmat
 
 ## get chroms and sites
 chroms=unique(sites$chrom)
-if(!is.na(args$testNsites)){
-  siteIX=sample(1:nrow(sites),args$testNsites)
+if(!is.na(args$chrom)){
+  siteIX=which(sites$chrom==args$chrom)
 } else {siteIX=1:nrow(sites)}
+if(!is.na(args$testNsites)){
+  siteIX=sample(siteIX,args$testNsites)
+} 
 
 # set up samp info
 samps$cage=samps[[args$repName]]
@@ -162,11 +167,32 @@ system.time({
     df.glm=cbind(sites[siteIX,],fit_GLM_all(siteIX,sampIX,samps,model.vars=c(args$mainEffect,args$repName),
                                             poolSize=args$poolSize,cmpAll=args$mainEffect,dontReport=args$repName))
 })
+df.glm <- df.glm %>% mutate_at(vars(starts_with("p.")),function(x){x[x==0]=NA;return(x)}) 
+
+# add delta-AF
+comparisons=do.call(rbind,strsplit(gsub("p.","",df.glm%>%dplyr::select(starts_with("p."))%>%colnames),"_"))
+dAF=do.call(cbind,lapply(1:nrow(comparisons),function(compIX){
+  samps.1=intersect(sampIX,which(as.character(samps[[args$mainEffect]])==comparisons[compIX,1]))
+  samps.2=intersect(sampIX,which(as.character(samps[[args$mainEffect]])==comparisons[compIX,2]))
+  return(rowMeans(afmat[siteIX,samps.1])-rowMeans(afmat[siteIX,samps.2]))
+}))
+colnames(dAF)=gsub("p.","dAF.",df.glm%>%dplyr::select(starts_with("p."))%>%colnames)
+df.glm <- cbind(df.glm,dAF)
+
+#######################
+## save
 cat("finished\n")
 
-df.glm <- df.glm %>% mutate_at(vars(starts_with("p.")),function(x){x[x==0]=NA;return(x)}) 
-filename=paste0(args$outDir,"/glm.",ifelse(!is.na(args$dropRep),paste0("drop",args$dropRep,"."),""),basename(args$HAFs))
+filename=paste0(args$outDir,"/glm",
+                ifelse(!is.na(args$dropRep),paste0("_loo",args$dropRep),""),
+                ifelse(!is.na(args$chrom),paste0(".chrom",args$chrom),""),
+                ".",gsub(".Rdata$","",basename(args$HAFs)),".",args$saveAs)
+
 cat("saving to ",filename,"\n")
-save(df.glm,file=filename)
+switch(args$saveAs,
+       "RDS"={saveRDS(df.glm,file=filename)},
+       "Rdata"={save(df.glm,file=filename)},
+       "csv"={write.csv(df.glm,file=filename,quote=F,row.names=F)}
+)
 
 
