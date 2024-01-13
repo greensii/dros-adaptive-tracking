@@ -227,3 +227,95 @@ Certain functions (`score_wins`, `get_matched_pairs`, and
 and mcmapply. Set **ncores** to the number of threads available to use.
 It is highly recommended to run these functions with as many threads as
 possible since they can take a very long time otherwise.
+
+## Test run!
+
+Note that this is only an example. With such a small subset of SNPs
+tested, the results may be somewhat unreliable.
+
+``` r
+## SETUP - edit this to your desired paths
+localDir="/Users/me/Documents/scripts/dros-adaptive-tracking" ### ie. "~/data/orchard_2014";
+scriptsDir="/Users/me/Documents/scripts/dros-adaptive-tracking" ### ie. "~/GitHub/dros-adaptive-tracking"
+configFile="test_data/config.R" ### ie. test_data/config.R
+
+## FUNCTIONS
+setwd(scriptsDir)
+source("analysis_workflow/workflow_functions.R")
+source("analysis_workflow/plotting_functions.R")
+source("analysis_workflow/helper_functions.R")
+source("analysis_workflow/load_packages.R")
+setwd(localDir)
+
+## PARAMETERS
+source(configFile)
+ncores=parallel::detectCores()-1
+
+## RUN WORKFLPW
+results=RunFullWorkflow(HAFsFile,glmFile,snpFile,comparisons,cages,fdrThreshs,esThreshs,windowSize,windowShift,maxClusterGap,maxSNPpairDist,linkageThresh,ncores)
+```
+
+    loading GLM results..
+    running analysis for comparisons:
+     + 2_1
+    + 3_2
+    + 4_3
+    + 5_4
+    + 5_1 
+    loading HAFs data..
+    running analysis for cages:
+     + 1
+    + 2
+    + 3
+    + 4
+    + 5
+    + 6
+    + 7
+    + 8
+    + 9
+    + 10 
+    finding parallel sites..
+    classifying parallel sites..
+    scoring windows..
+    500 -SNP windows with  100 -SNP shift
+    500 -SNP windows with  100 -SNP shift
+    1 ..
+    0 ..
+    0 ..
+    2 ..
+    18 ..
+    finding initial clusters..
+    1 initial clusters found..
+    extracting trajectories for top cluster sites..
+    finished.
+    20 parallel sites in 1 clusters
+
+``` r
+## PLOT
+
+### plot allele frequency trajectory of cluster marker SNP
+##########
+results$clMarkerAF %>% mutate(cage=factor(cage)) %>%
+  mutate(snp_label=paste0("Chrom",chrom,":",pos)) %>%
+  ggplot(aes(x=tpt,y=af,color=cage,group=cage)) + geom_line() + geom_point() + theme_minimal() + facet_wrap(~snp_label)
+```
+
+![](dros-adaptive-tracking_tutorial_files/figure-commonmark/testrun-1.png)
+
+``` r
+### make manhattan plot with clusters shaded
+##########
+results$clusters %>% 
+  dplyr::select(chrom,cl,startPos,endPos,comparison) %>% 
+  pivot_longer(cols = c(startPos,endPos),
+               names_to = "posType",values_to = "pos") %>%
+  ggplot(aes(x=pos)) + 
+  geom_area(aes(y=4,fill=cl),alpha=.3) + 
+  geom_point(data=results$sigSites, aes(y=-1*log10(FDR),color=factor(sigLevel)))  + 
+  theme_minimal() + facet_grid(comparison ~ chrom) + 
+  scale_color_manual(values=c("gray","coral","red")) + 
+  labs(x="SNP Position",y="-log10(FDR)",fill="cluster",
+       color="Parallelism\nSignificance\nLevel")
+```
+
+![](dros-adaptive-tracking_tutorial_files/figure-commonmark/testrun-2.png)
