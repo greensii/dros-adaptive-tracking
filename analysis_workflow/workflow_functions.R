@@ -18,18 +18,35 @@
 
   
 ####################### 
-RunFullWorkflow=function(afFile,glmFile,snpFile,comparisons,cageSet,
-                          fdrThreshs=c(.2,.05,.01),esThreshs=c(0,0.02,0.02),winSize=500,winShift=100,maxClusterBreak=100,
-                          maxSNPPairDist=3000000,linkedClusterThresh=0.03,ncores=15){
+RunFullWorkflow=function(afFile,glmFile,snpFile,
+                        comparisons=NULL,cageSet=NULL,
+                        fdrThreshs=c(.2,.05,.01),esThreshs=c(0,0.02,0.02),winSize=500,winShift=100,maxClusterBreak=100,
+                        maxSNPPairDist=3000000,linkedClusterThresh=0.03,ncores=1){
 ##################
    ## load GLM data
    cat("loading GLM results..\n");flush.console();Sys.sleep(1)
-    load(glmFile)
-    sites=df.glm %>% dplyr::select(chrom,pos)
-    
-## get af shifts in training cages and in test cage at each time segment
-    cat("loading af data..\n");flush.console();Sys.sleep(1)
+    if(grepl(".rds$",tolower(glmFile))){df.glm=readRDS(glmFile)} else{
+      load(glmFile)
+    }
+  sites=df.glm %>% dplyr::select(chrom,pos)
+  
+  ## select comparisons
+  p_labs=gsub("^p.","",colnames(df.glm)[grepl("^p\\.",colnames(df.glm))])
+  coef_labs=gsub("^coef.","",colnames(df.glm)[grepl("^coef\\.",colnames(df.glm))])
+  if(!is.null(comparisons)){comparisons=intersect(intersect(comparisons,p_labs),coef_labs)}else{
+    comparisons=intersect(p_labs,coef_labs)
+  }
+  cat("running analysis for comparisons:\n",paste0(paste0("+ ",comparisons),collapse="\n"));flush.console();Sys.sleep(1)
+  
+  ## load HAFs data
+    cat("loading HAFs data..\n");flush.console();Sys.sleep(1)
     load(afFile)
+    if(is.null(cageSet)){cageSet=unique(samps$cage)} else {
+      cageSet=intersect(cageSet,unique(samps$cage))
+    }
+    cat("running analysis for cages:\n",paste0(paste0("+ ",cageSet),collapse="\n"));flush.console();Sys.sleep(1)
+    
+    ## get af shifts in training cages and in test cage at each time segment
     afShifts=get_af_shifts(afmat,samps,cageSet,comparisons)
     
     ## get FDR-corrected pvalues
@@ -374,7 +391,7 @@ RunFullWorkflow=function(afFile,glmFile,snpFile,comparisons,cageSet,
  ######################
   
  ########################
- get_loo_shifts=function(results.loo,afFile,snpFile,comparisons,timesegs){
+ get_loo_shifts=function(results.loo,afFile,snpFile,comparisons){
   ########################
     load(afFile)
     freqBins=assign_SNPs_freqBins(sites,snpFile)
@@ -430,17 +447,17 @@ RunFullWorkflow=function(afFile,glmFile,snpFile,comparisons,cageSet,
       ungroup() %>%
       mutate(shiftGroup=ifelse(p.adjust(pval.par.npaired,method = "BH")<.05,ifelse(shift>0,shiftGroups[1],shiftGroups[2]),shiftGroups[3])) %>%
       mutate(
-        tpt.ID=factor(paste0("SNPs ID'd in 9 cages\nfrom",gsub("Timepoint","",timesegs[comparison])),
-                      paste0("SNPs ID'd in 9 cages\nfrom",gsub("Timepoint","",timesegs))),
-        tpt.measured=factor(gsub("Timepoint","",paste0("shifts\n",timesegs[c.meas])),
-                            gsub("Timepoint","",paste0("shifts\n",timesegs)))
+        tpt.ID=factor(paste0("SNPs ID'd in 9 cages\n",comparisons[comparison]),
+                      paste0("SNPs ID'd in 9 cages\n",comparisons)),
+        tpt.measured=factor(paste0("shifts\n",comparisons[c.meas]),
+                            paste0("shifts\n",comparisons))
       )
     return(list(shifts.loo,medians.loo))
   }
  ########################
  
  ########################
- get_matched_pairs=function(clusterPairs,snpFile,freqBins,distBinSize=25,maxPairsPerCluster=NULL,nCores=20){
+ get_matched_pairs=function(clusterPairs,snpFile,freqBins,distBinSize=25,maxPairsPerCluster=NULL,nCores=1){
    ####################
    #load("Rdata/glm.Ecages.Rdata");
    #sites=df.glm %>% dplyr::select(chrom,pos); rm(df.glm)

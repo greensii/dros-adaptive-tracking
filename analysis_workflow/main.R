@@ -3,6 +3,7 @@
 ## setup - edit this to your desired paths
 localDir= ### ie. "~/data/orchard_2014";
 scriptsDir= ### ie. "~/GitHub/dros-adaptive-tracking"
+configFile= ### ie. test_data/config.R
 
 ## FUNCTIONS
 setwd(scriptsDir)
@@ -14,17 +15,18 @@ setwd(localDir)
 
 ## PARAMETERS
 source(configFile)
+ncores=parallel::detectCores()-1
 
 ### RUN WORKFLOW
 
 ## for each leave-one-cage-out round
 results.loo=lapply(cages,function(dropCage){
   loofile=paste0("glm_loo",cages[dropCage],".orch14.Rdata")
-  RunFullWorkflow(HAFsFile,loofile,snpFile,comparisons,cages[-dropCage],fdrThreshs,esThreshs,windowSize,windowShift,maxClusterGap,maxSNPpairDist,linkageThresh,maxthreads)
+  RunFullWorkflow(HAFsFile,loofile,snpFile,comparisons,cages[-dropCage],fdrThreshs,esThreshs,windowSize,windowShift,maxClusterGap,maxSNPpairDist,linkageThresh,ncores)
 })
 list[shifts.loo,medians.loo]<-get_loo_shifts(results.loo,HAFsFile,snpFile,comparisons,timesegs)
 save(results.loo,shifts.loo,medians.loo,file="Rdata/results_loo.orch14.Rdata")
 
 ## for all cages together
-results=RunFullWorkflow(HAFsFile,glmFile,snpFile,comparisons,cages,fdrThreshs,esThreshs,windowSize,windowShift,maxClusterGap,maxSNPpairDist,linkageThresh,maxthreads)
+results=RunFullWorkflow(HAFsFile,glmFile,snpFile,comparisons,cages,fdrThreshs,esThreshs,windowSize,windowShift,maxClusterGap,maxSNPpairDist,linkageThresh,ncores)
 save(results,file="Rdata/results.orch14.Rdata")
