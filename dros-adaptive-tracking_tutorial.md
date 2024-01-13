@@ -6,7 +6,7 @@ The full workflow is designed to be run after calculating GLM p-values
 for each desired time segment or population comparison, using the
 function:
 
-`results  <- RunFullWorkflow( HAFsFile, glmFile, snpFile, comparisons, cages, fdrThreshs, esThreshs, windowSize, windowShift, maxClusterGap, maxSNPpairDist, linkageThresh, maxthreads)`
+`results  <- RunFullWorkflow( HAFsFile, glmFile, snpFile, comparisons, cages, fdrThreshs, esThreshs, windowSize, windowShift, maxClusterGap, maxSNPpairDist, linkageThresh, ncores)`
 
 All of these parameters can be defined in a config file, such as the
 example `config.R` included in the `test_data` directory.
