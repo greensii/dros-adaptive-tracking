@@ -23,6 +23,9 @@ RunFullWorkflow=function(afFile,glmFile,snpFile,
                         fdrThreshs=c(.2,.05,.01),esThreshs=c(0,0.02,0.02),winSize=500,winShift=100,maxClusterBreak=100,
                         maxSNPPairDist=3000000,linkedClusterThresh=0.03,ncores=1){
 ##################
+  params=list(glmFile,comparisons,cageSet,fdrThreshs,esThreshs,
+              winSize,winShift,maxClusterBreak,maxSNPPairDist,linkedClusterThresh,ncores)
+  
    ## load GLM data
    cat("loading GLM results..\n");flush.console();Sys.sleep(1)
     if(grepl(".rds$",tolower(glmFile))){df.glm=readRDS(glmFile)} else{
@@ -36,7 +39,7 @@ RunFullWorkflow=function(afFile,glmFile,snpFile,
   if(!is.null(comparisons)){comparisons=intersect(intersect(comparisons,p_labs),coef_labs)}else{
     comparisons=intersect(p_labs,coef_labs)
   }
-  cat("running analysis for comparisons:\n",paste0(paste0("+ ",comparisons),collapse="\n"));flush.console();Sys.sleep(1)
+  cat("running analysis for comparisons:\n",paste0(paste0("+ ",comparisons),collapse="\n"),"\n");flush.console();Sys.sleep(1)
   
   ## load HAFs data
     cat("loading HAFs data..\n");flush.console();Sys.sleep(1)
@@ -44,7 +47,7 @@ RunFullWorkflow=function(afFile,glmFile,snpFile,
     if(is.null(cageSet)){cageSet=unique(samps$cage)} else {
       cageSet=intersect(cageSet,unique(samps$cage))
     }
-    cat("running analysis for cages:\n",paste0(paste0("+ ",cageSet),collapse="\n"));flush.console();Sys.sleep(1)
+    cat("running analysis for cages:\n",paste0(paste0("+ ",cageSet),collapse="\n"),"\n");flush.console();Sys.sleep(1)
     
     ## get af shifts in training cages and in test cage at each time segment
     afShifts=get_af_shifts(afmat,samps,cageSet,comparisons)
@@ -54,6 +57,7 @@ RunFullWorkflow=function(afFile,glmFile,snpFile,
     FDR=get_glm_FDR(df.glm,comparisons)
     
     ## classify sites
+    cat("classifying parallel sites..\n");flush.console();Sys.sleep(1)
     df.sig=get_sig_sites(df.glm,comparisons,FDR,afShifts,fdrThreshs,esThreshs)
     
     ### score windows
@@ -66,22 +70,35 @@ RunFullWorkflow=function(afFile,glmFile,snpFile,
     
     ### cluster windows and merge by linkage
     cat("finding initial clusters..\n");flush.console();Sys.sleep(1)
-    df.clust=cluster_wins(df.wins,df.winfdr,maxBreak=maxClusterBreak) %>% mutate(startPos=sites$pos[startSNP],endPos=sites$pos[endSNP]) 
+    df.clust=cluster_wins(df.wins,df.winfdr,maxBreak=maxClusterBreak) 
+    if(is.null(df.clust)){
+      cat("**No clusters found** Ending early and returning results so far.\n");flush.console();Sys.sleep(1)
+      results=list("sigSites"=df.sig,"wins"=df.wins,"params"=params)
+      return(results)
+    } 
+    df.clust <- df.clust %>% mutate(startPos=sites$pos[startSNP],endPos=sites$pos[endSNP]) 
+    nClusters_init=nrow(df.clust)
+    cat(nClusters_init,"initial clusters found..\n");flush.console();Sys.sleep(1)
     
-    cat("merging linked clusters..\n");flush.console();Sys.sleep(1)
-    df.clust = df.sig %>% filter(sigLevel>1) %>% associate_snps_to_clusters(df.clust) %>% 
-      find_snp_pairs(maxDist=maxSNPPairDist) %>% filter(pairType=="inter") %>%
-      calc_Rsq_for_snp_pairs(ncores=ncores,snpFile) %>% dplyr::select(-snp1.cl,-snp2.cl) %>%
-      merge_linked_clusters(df.clust,df.sig,Rsq.thresh = linkedClusterThresh) 
+    
+    if(nClusters_init>1){
+      cat("merging linked clusters..\n");flush.console();Sys.sleep(1)
+      
+      df.clust = df.sig %>% filter(sigLevel>1) %>% associate_snps_to_clusters(df.clust) %>%
+      find_snp_pairs(maxDist=maxSNPPairDist) %>%
+      filter(pairType=="inter")  %>%
+      calc_Rsq_for_snp_pairs(ncores=ncores,snpFile) %>% 
+      dplyr::select(-snp1.cl,-snp2.cl) %>%
+      merge_linked_clusters(df.clust,df.sig,Rsq.thresh = linkedClusterThresh)
+    } 
     
     cat("extracting trajectories for top cluster sites..\n");flush.console();Sys.sleep(1)
-    df.traj=get_af_trajectories(chrompos=df.clust %>% select(chrom,bestSNP.pos),HAFsFile,baselineFile)
+    df.traj=get_af_trajectories(chrompos=df.clust %>% dplyr::select(chrom,bestSNP.pos),HAFsFile)
     
     cat("finished.\n");flush.console();Sys.sleep(1)
     cat(nrow(df.sig),"parallel sites in",nrow(df.clust),"clusters\n");flush.console();Sys.sleep(1)
     
-    params=list(glmFile,comparisons,cageSet,fdrThreshs,esThreshs,
-                winSize,winShift,maxClusterBreak,maxSNPPairDist,linkedClusterThresh,ncores)
+    
     results=list("sigSites"=df.sig,"wins"=df.wins,"clusters"=df.clust,"clMarkerAF"=df.traj,"params"=params)
     return(results)
  }
@@ -130,7 +147,7 @@ RunFullWorkflow=function(afFile,glmFile,snpFile,
      cc.ix=match(cc,comparisons)
      df.glm %>% mutate(ix=1:nrow(df.glm)) %>% 
        rename(coef.div=paste0("coef.",cc),p.div=paste0("p.",cc)) %>% 
-       select(ix,chrom,pos,coef.div,p.div) %>% 
+       dplyr::select(ix,chrom,pos,coef.div,p.div) %>% 
        mutate(sigLevel=pSig[,cc.ix],FDR=FDR[,cc.ix],afShift=afShifts[,cc.ix],comparison=cc) %>% 
        filter(sigLevel>0,!is.na(p.div))
    })) %>% mutate(comparison=factor(comparison,comparisons)) 
@@ -160,7 +177,7 @@ RunFullWorkflow=function(afFile,glmFile,snpFile,
       #if(ww%%1000==0){cat(winChrom,", snp ",ww,"\n"); flush.console()}
       if((ww+winSize)<nSites & (winChrom==sites$chrom[ww+winSize])){
         df.sig %>%  filter(ix>=ww,ix<ww+winSize) %>% 
-          select(chrom,pos,comparison,sigLevel,p.div) %>% 
+          dplyr::select(chrom,pos,comparison,sigLevel,p.div) %>% 
           rbind(df.null %>% dplyr::filter(chrom==winChrom)) %>% 
           group_by(chrom,comparison) %>% summarise(winscore=sum(sigLevel),
                                                 nSig.1=sum(sigLevel==1),
@@ -248,8 +265,12 @@ RunFullWorkflow=function(afFile,glmFile,snpFile,
       
       
       
-    },as.character(cc_pairs[,1]),as.character(cc_pairs[,2]),SIMPLIFY=FALSE)) %>%
-      mutate(comparison=factor(comparison,comparisons))
+    },as.character(cc_pairs[,1]),as.character(cc_pairs[,2]),SIMPLIFY=FALSE))
+    
+    if(!is.null(df.clust)){
+      df.clust <- df.clust %>% mutate(comparison=factor(comparison,comparisons))
+    } 
+    return(df.clust)
   }
  ############
   
@@ -294,6 +315,7 @@ RunFullWorkflow=function(afFile,glmFile,snpFile,
  ################# 
   calc_Rsq_for_snp_pairs=function(snppairs,ncores,snpFile){
  ###############
+   
     ## snppairs must have columns: chrom, snp1.pos, snp2.pos
     snppairs$Rsq=NA
     for(mychrom in sort(unique(snppairs$chrom))){
@@ -351,15 +373,14 @@ RunFullWorkflow=function(afFile,glmFile,snpFile,
       df.sig.cl=associate_snps_to_clusters(df.sig %>% filter(sigLevel>1),df.clust) 
       cat(nrow(df.sig.cl),"/",nrow(df.sig %>% filter(sigLevel>1))," sig sites in clusters\n")
       
-      
-      linked_clusters=snppairs %>% 
-        merge(df.sig.cl %>% dplyr::select(chrom,pos,comparison,cl) %>% rename(snp1.pos=pos,snp1.cl=cl),
+      linked_clusters <- snppairs %>% 
+        merge(df.sig.cl %>% dplyr::select(chrom,pos,comparison,cl) %>% dplyr::rename(snp1.pos=pos,snp1.cl=cl),
               by=c("chrom","snp1.pos","comparison")) %>%
-        merge(df.sig.cl %>% dplyr::select(chrom,pos,comparison,cl) %>% rename(snp2.pos=pos,snp2.cl=cl),
+        merge(df.sig.cl %>% dplyr::select(chrom,pos,comparison,cl) %>% dplyr::rename(snp2.pos=pos,snp2.cl=cl),
               by=c("chrom","snp2.pos","comparison")) %>%
         filter(!is.na(snp1.cl),!is.na(snp2.cl)) %>% mutate(cnum1=as.numeric(gsub("c","",chop(snp1.cl,"\\.",1))),
                                                            cnum2=as.numeric(gsub("c","",chop(snp2.cl,"\\.",1)))) %>%
-        filter(cnum2==(cnum1+1))%>% 
+        filter(cnum2==(cnum1+1))   %>% 
         group_by(snp1.cl,snp2.cl) %>% summarise(ct=n(),Rsq.mean=mean(Rsq),Rsq.med=median(Rsq),Rsq.sd=sd(Rsq)) %>%
         filter(Rsq.mean>Rsq.thresh) %>% arrange(desc(Rsq.mean))
       
@@ -375,10 +396,14 @@ RunFullWorkflow=function(afFile,glmFile,snpFile,
   ##################
   
  ########################
- get_af_trajectories=function(chrompos,HAFsFile,baselineFile){
+ get_af_trajectories=function(chrompos,HAFsFile,baselineFile=NULL){
 ########################
-    list[sites,samps,afmat]=load_afs_with_baseline(HAFsFile,baselineFile)
-    siteIX=sites %>% mutate(ix=1:nrow(sites)) %>% merge(chrompos,by.x=c("chrom","pos"),by.y=colnames(chrompos)) %>% pull(ix)
+   if(!is.null(baselineFile)){
+      list[sites,samps,afmat]=load_afs_with_baseline(HAFsFile,baselineFile)
+   } else {
+     load(HAFsFile)
+    }
+      siteIX=sites %>% mutate(ix=1:nrow(sites)) %>% merge(chrompos,by.x=c("chrom","pos"),by.y=colnames(chrompos)) %>% pull(ix)
     
     samps <- samps %>% mutate(tpt=ifelse(is.na(tpt),0,tpt))
     
