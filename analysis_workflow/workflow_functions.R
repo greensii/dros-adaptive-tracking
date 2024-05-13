@@ -284,7 +284,7 @@ RunFullWorkflow=function(afFile,glmFile,snpFile,
  #############
   
  ################
- find_snp_pairs=function(df.snps,maxDist,cross_ts=FALSE){
+ find_snp_pairs=function(df.snps,maxDist,cross_ts=FALSE,max_snps_per_cluster=Inf){
   ################
     do.call(rbind,lapply(unique(df.snps$chrom),function(chrom){
       do.call(rbind,lapply(unique(df.snps$comparison),function(cc){
@@ -294,6 +294,10 @@ RunFullWorkflow=function(afFile,glmFile,snpFile,
         } else{
           sigIX2=which(df.snps$chrom==chrom & df.snps$comparison==cc)
         }
+        ### pick a random subset of SNPs in each cluster if nof SNPs is > max_snps_per_cluster
+        sigIX1=sample(sigIX1,min(length(sigIX1),max_snps_per_cluster))
+        sigIX2=sample(sigIX2,min(length(sigIX2),max_snps_per_cluster))
+        ### make a list of all cross-cluster SNP pairs
         sigIX=expand.grid(sigIX1,sigIX2) %>% filter(Var1<Var2) 
         df.pairs=data.frame(snp1.pos=df.snps$pos[sigIX$Var1],snp2.pos=df.snps$pos[sigIX$Var2])
         if("cl" %in% colnames(df.snps)){
